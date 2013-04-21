@@ -1,3 +1,7 @@
+import numpy
+import scipy
+import sys
+
 def integral_image (x):
 	return x.cumsum(1).cumsum(0)
 
