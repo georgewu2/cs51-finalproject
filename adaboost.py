@@ -7,9 +7,7 @@ def loadSimpleData():
 	classLabels = [1,1,-1,-1,1]
 	return data,classLabels
 
-data,classLabels = loadSimpleData()
-
-def classify(data,dim,threshold,inequality):
+def classGuesser(data,dim,threshold,inequality):
 
 	# get dimensions and make a return vector
 	n,m = np.shape(data)
@@ -50,7 +48,7 @@ def classifierTrainer(data,labels,weights,steps):
 				# set the threshold value by incrementing one step over minrange
 				# and classify based on the threshold
 				threshold = (rangeMin + (j * stepSize))
-				classGuess = classify(dataMatrix,dim,threshold,inequality)
+				classGuess = classGuesser(dataMatrix,dim,threshold,inequality)
 
 				# find the error in predictedClasses
 				errorArray = np.ones((n,1))
@@ -60,11 +58,12 @@ def classifierTrainer(data,labels,weights,steps):
 					if classGuess[point] == labelMatrix[point]:
 						errorArray[point] = 0
 				# print "WEIGHTS"
-				# print weights
+				# print np.matrix(weights)
 				# print "ERRORARRAY"
-				# print errorArray
+				# print np.matrix(errorArray)
 
-				weightedError = np.dot(weights.T,errorArray)
+				weightedError = np.matrix(weights).T * np.matrix(errorArray)
+
 				# print "WEIGHTED ERROR"
 				# print weightedError
 
@@ -72,11 +71,16 @@ def classifierTrainer(data,labels,weights,steps):
 				# stuff in a dictionary
 				if weightedError < minError:
 					minError = weightedError
+					# print "MIN ERROR"
+					# print minError
 					bestClassGuess = classGuess.copy()
 					bestClassifier['dim'] = dim
 					bestClassifier['threshold'] = threshold
 					bestClassifier['inequality'] = inequality
-
+	# print "BEST CLASS GUESS"
+	# print bestClassGuess
+	# print bestClassifier
+	# print minError
 	return bestClassifier,minError,bestClassGuess
 
 def adaboost(data,labels,iterations):
@@ -93,35 +97,53 @@ def adaboost(data,labels,iterations):
 	for i in range (0,iterations):
 		
 		# print("ITERATION", i)
-		# train a classifier
+
+		# train best classifier for these weights
 		bestClassifier,error,classGuess = classifierTrainer(data,labels,weights,10)
 
 		# calculate weight of the classifier
-		alpha = float(0.5 * math.log(1.0 - error) / max(error,1e-16))
+		alpha = float(math.log(1.0 - error) / max(error,1e-16))
 		bestClassifier['alpha'] = alpha
 
 		# add classifier to weakClassGuess
 		weakClassGuess.append(bestClassifier)
 
 		# calculate new weights
-		exponent = np.multiply(-1 * alpha * np.matrix(labels), classGuess)
+		exponent = np.multiply(1 * alpha * np.matrix(labels), classGuess)
 		# print "EXPONENT VECTOR"
-		# print exponent
+		# print np.exp(exponent.T)
+		# print "ORIGINAL WEIGHTS"
+		# print weights
 		weights = np.multiply(weights,np.exp(exponent.T))
-		weights = weights / weights.sum()
-
+		weights = weights * (1 / weights.sum())
+		# print "AFTER WEIGHTS"
+		# print weights
 		# update aggregateClassGuess
-		aggregateClassGuess = aggregateClassGuess + classGuess.T
+		aggregateClassGuess = aggregateClassGuess + np.matrix((-1 * alpha * classGuess)).T
+		# print "CLASS GUESS"
+		# print aggregateClassGuess
 
 		# aggregateErrors
 		aggregateErrors = np.multiply(np.sign(aggregateClassGuess) != np.matrix(classLabels).T, np.ones((n,1)))
-		errorRate = aggregateErrors.sum() / m
-		print "total error",errorRate,"\n"
+		errorRate = aggregateErrors.sum() / n
+		# print "total error",errorRate,"\n"
 		if errorRate == 0.0: break
 
 	return weakClassGuess
 
+def classify(data,classifierArray):
+	dataMatrix = np.matrix(data)
+	n,m = np.shape(dataMatrix)
+	aggregateClassGuess = np.matrix(np.zeros((n,1)))
 
+	# for every classifier we train, use it to classguess and then scale by
+	# alpha and add to aggregate guess
+	for i in range (0,len(classifierArray)):
+		classGuess = classGuesser(dataMatrix,classifierArray[i]['dim'],classifierArray[i]['threshold'],classifierArray[i]['inequality'])
+		aggregateClassGuess = aggregateClassGuess + (-1 * classifierArray[i]['alpha'] * classGuess)
+		# print aggregateClassGuess
+	return np.sign(aggregateClassGuess)
 
-
-print adaboost(data,classLabels,10)
+dataa,classLabels = loadSimpleData()
+classifierArray = adaboost(dataa,classLabels,30)
+print classify([5,5],classifierArray)
