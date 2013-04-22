@@ -1,9 +1,6 @@
 import numpy as np
 import math
 
-# use a list of features as data??? maybe dim is features and total matrix is images?
-
-
 class adaBoost:
 
 	def __init__(self):
