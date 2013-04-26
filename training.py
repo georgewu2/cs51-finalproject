@@ -10,6 +10,7 @@ class Faces:
 		im = Image.open(video_frame)
 		im_gray = im.convert('L')
 		im_array = np.array(im_gray)
+		print im_array
 		return im_array
 
 
@@ -20,15 +21,15 @@ class Faces:
 		return vector_list.sum(axis = 0) / float(vector_list.shape[0])
 
 	def difference_faces(self, vector_list, mean_vector):
-		for vector in vector_list:
-			vector = vector - mean_vector
-		return vector_list
+		vector_list - mean_vector
 
 	def covariance(self, vector_list):
-		vector_list.cov()
+		np.cov(vector_list)
 
-	# def eigenbasis(self, matrix):
+	def eigenbasis(self, matrix):
+		eigenvalues = np.linalg.eig(matrix)
+
 
 test = Faces()
 a = test.get_frame("stuff.jpg")
-test.matrix_to_vector(a)
+print test.matrix_to_vector(a)
