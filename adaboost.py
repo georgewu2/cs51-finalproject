@@ -91,7 +91,7 @@ class adaBoost:
 		# print minError
 		return bestClassifier,minError,bestClassGuess
 
-	def boost(self,iterations):
+	def boost(self,maxFeatures):
 		weakClassGuessers = []
 		n,m = np.shape(self.data)
 
@@ -102,7 +102,7 @@ class adaBoost:
 		aggregateClassGuess = np.zeros((n,1))
 
 		# the work
-		for i in range (0,iterations):
+		for i in range (0,maxFeatures):
 			
 			# print("ITERATION", i)
 
@@ -151,6 +151,7 @@ class adaBoost:
 			aggregateClassGuess = aggregateClassGuess + (-1 * self.classifierArray[i]['alpha'] * classGuess)
 			# print aggregateClassGuess
 		return np.sign(aggregateClassGuess)
+
 
 adabooster = adaBoost()
 adabooster.loadData()
