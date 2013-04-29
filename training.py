@@ -7,8 +7,11 @@ path = "/Users/georgieewuu/Documents/Freshman Spring/CS51/cs51-finalproject/imag
 class Faces:
 
 	def __init__(self):
-		differencefaces 
+		faces
+		differencefaces
+		meanface
 		eigenfaces
+		weights
 
 	def get_frame_vector(self, video_frame):
 		im = Image.open(video_frame)
@@ -31,10 +34,10 @@ class Faces:
 		return vector_list.sum(axis = 0) / float(vector_list.shape[0])
 
 	def difference_faces(self, vector_list, mean_vector):
-		vector_list - mean_vector
+		return vector_list - mean_vector
 
 	def covariance(self, vector_list):
-		np.cov(vector_list)
+		return np.cov(vector_list)
 
 	def eigenfaces(self, matrix):
 
@@ -48,9 +51,10 @@ class Faces:
 		eigenvalues = eigenvalues[order]
 		eigenvectors = eigenvectors[order]
 
-		self.eigenfaces = eigenvectors * differencefaces
+		return eigenvectors * differencefaces
 
-
+	def weights(self, eigenfaces):
+		return faces * np.column_stack(eigenfaces)
 
 test = Faces()
 a = test.get_frame("stuff.jpg")
