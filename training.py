@@ -17,13 +17,13 @@ class Faces:
 		im_gray = im.convert('L')
 
 		# convert to a matrix
-		im_array = np.array(im_gray)
-		return im_array.flatten('F')
+		im_matrix = np.matrix(im_gray)
+		return im_matrix.flatten('F')
 
 	def get_face_images(self):
 		images = os.listdir(path)
 
-		li = [get_frame_vector(img) for img in images]
+		li = [get_frame_vector("/images/" + img) for img in images]
 
 		np.vstack(li)
 
@@ -46,7 +46,7 @@ class Faces:
 
 		# sort eigenvalues and eigenvectors according to most significant eigenvalues
 		eigenvalues = eigenvalues[order]
-		eigenvectors = np.matrix(eigenvectors[order])
+		eigenvectors = eigenvectors[order]
 
 		self.eigenfaces = eigenvectors * differencefaces
 
