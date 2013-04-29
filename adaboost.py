@@ -11,8 +11,12 @@ class adaBoost:
 
 	# LOAD DATA SHOULD TAKE IN A SET?? FOR CASCADE
 	def loadData(self,positiveSet=[],negativeSet=[]):
-		self.data = np.matrix(positiveSet.extend(negativeSet))
-		self.labels = [1 for x in positiveSet].extend([-1 for x in negativeSet])
+		self.data = np.vstack( [ positiveSet , negativeSet ] )
+		npos,mpos = np.shape(positiveSet)
+		nneg,mneg = np.shape(negativeSet)
+
+		self.labels = ([1 for x in range(npos)])
+		self.labels.extend([-1 for x in range(nneg)])
 
 	def guessClass(self,data,dim,threshold,inequality):
 
@@ -96,8 +100,10 @@ class adaBoost:
 			# train best classifier for these weights
 			bestClassifier,error,classGuess = self.trainClassifier(self.data,self.labels,weights,10)
 
+			print classGuess
 			# calculate weight of the classifier
 			alpha = float(math.log(1.0 - error) / max(error,1e-16))
+			print alpha
 			bestClassifier['alpha'] = alpha
 
 			# add classifier to weakClassGuess
@@ -110,12 +116,16 @@ class adaBoost:
 
 			# update aggregateClassGuess
 			aggregateClassGuess = aggregateClassGuess + np.matrix((-1 * alpha * classGuess)).T
-
+			print np.matrix((-1 * alpha * classGuess)).T
+			# print aggregateClassGuess
 			# aggregateErrors
 			aggregateErrors = np.multiply(np.sign(aggregateClassGuess) != np.matrix(self.labels).T, np.ones((n,1)))
 			errorRate = aggregateErrors.sum() / n
+			# print aggregateErrors
 
-			if errorRate == 0.0: break
+			if errorRate == 0.0: 
+				print "NOERROR"
+				break
 
 		self.classifierArray = weakClassGuessers
 
@@ -237,5 +247,6 @@ class cascade:
 				self.negativeSet = [k for (k,v) in negativeSetGuesses.iteritems() if v == 1]
 
 adabooster = adaBoost()
-adabooster.loadData(([(0,2.3),(.5,3.3),(0.2,4.3)]),([(3.2,0),(2.2,0.1),(4.3,0.5)]))
+adabooster.loadData( [ [12,3] , [10,4] , [2,3.5] ] , [ [2,10] , [3,11] , [14,12] ] )
 adabooster.boost(30)
+print adabooster.classify([-3,1])
