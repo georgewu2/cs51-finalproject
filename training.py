@@ -1,17 +1,18 @@
 import numpy as np
 import numpy.linalg as linalg
 import Image
-
-path = "/Users/georgieewuu/Documents/Freshman Spring/CS51/cs51-finalproject/images"
+import os
 
 class Faces:
 
 	def __init__(self):
-		faces
-		differencefaces
-		meanface
-		eigenfaces
-		weights
+		self.listfaces = []
+		self.faces = None
+		self.meanface = None
+		self.differencefaces = None
+		self.covmatrix = None
+		self.eigenfaces = None
+		self.weights = None
 
 	def get_frame_vector(self, video_frame):
 		im = Image.open(video_frame)
@@ -24,25 +25,33 @@ class Faces:
 		return im_matrix.flatten('F')
 
 	def get_face_images(self):
-		images = os.listdir(path)
+		# get all files of image directory
+		images = os.listdir(os.getcwd() + "/images")
+		
+		# get rid of the .DS_Store file
+		images.pop(0)
 
-		li = [get_frame_vector("/images/" + img) for img in images]
+		# add each vector to the list
+		for i in images:
+			self.listfaces.append(self.get_frame_vector("images/" + i))
 
-		np.vstack(li)
+		# compress vector list into one matrix
+		self.faces = np.concatenate(self.listfaces)
 
-	def mean_face(self, vector_list):
-		return vector_list.sum(axis = 0) / float(vector_list.shape[0])
+	def mean_face(self):
+		# np.mean IS SO SLOW WHYYYYYYY
+		self.meanface = np.mean(self.faces, axis = 0)
 
-	def difference_faces(self, vector_list, mean_vector):
-		return vector_list - mean_vector
+	def difference_faces(self):
+		self.differencefaces = self.faces - self.meanface
 
-	def covariance(self, vector_list):
-		return np.cov(vector_list)
+	def covariance(self):
+		self.covmatrix = np.cov(self.differencefaces)
 
-	def eigenfaces(self, matrix):
+	def get_eigenfaces(self):
 
 		# get eigenvalues and eigenvectors
-		eigenvalues, eigenvectors = linalg.eig(matrix)
+		eigenvalues, eigenvectors = linalg.eig(self.covmatrix)
 		
 		# find the order of the eigenvalues in descending order
 		order = eigenvalues.argsort()[::-1]
@@ -51,11 +60,26 @@ class Faces:
 		eigenvalues = eigenvalues[order]
 		eigenvectors = eigenvectors[order]
 
-		return eigenvectors * differencefaces
+		self.eigenfaces = eigenvectors * self.differencefaces
 
-	def weights(self, eigenfaces):
-		return faces * np.column_stack(eigenfaces)
+	def get_weights(self):
+		self.weights = self.faces * self.eigenfaces.T
+
+	def main(self):
+		self.get_face_images()
+		print self.faces
+		self.mean_face()
+		print self.meanface
+		self.difference_faces()
+		print self.differencefaces
+		self.covariance()
+		print self.covmatrix
+		self.get_eigenfaces()
+		print self.eigenfaces
+		self.get_weights()
+		print self.weights
 
 test = Faces()
-a = test.get_frame("stuff.jpg")
-print test.matrix_to_vector(a)
+test.main()
+# a = test.get_frame("stuff.jpg")
+# print test.matrix_to_vector(a)
