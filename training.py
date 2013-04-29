@@ -1,21 +1,31 @@
 import numpy as np
+import numpy.linalg as linalg
 import Image
+
+path = "/Users/georgieewuu/Documents/Freshman Spring/CS51/cs51-finalproject/images"
 
 class Faces:
 
 	def __init__(self):
-		dictionaryfaces = {}
+		differencefaces 
+		eigenfaces
 
-	def get_frame(self, video_frame):
+	def get_frame_vector(self, video_frame):
 		im = Image.open(video_frame)
+
+		# convert to grayscale
 		im_gray = im.convert('L')
-		im_array = np.array(im_gray)
-		print im_array
-		return im_array
 
+		# convert to a matrix
+		im_matrix = np.matrix(im_gray)
+		return im_matrix.flatten('F')
 
-	def matrix_to_vector(self, matrix):
-		return matrix.flatten('F')
+	def get_face_images(self):
+		images = os.listdir(path)
+
+		li = [get_frame_vector("/images/" + img) for img in images]
+
+		np.vstack(li)
 
 	def mean_face(self, vector_list):
 		return vector_list.sum(axis = 0) / float(vector_list.shape[0])
@@ -26,8 +36,20 @@ class Faces:
 	def covariance(self, vector_list):
 		np.cov(vector_list)
 
-	def eigenbasis(self, matrix):
-		eigenvalues = np.linalg.eig(matrix)
+	def eigenfaces(self, matrix):
+
+		# get eigenvalues and eigenvectors
+		eigenvalues, eigenvectors = linalg.eig(matrix)
+		
+		# find the order of the eigenvalues in descending order
+		order = eigenvalues.argsort()[::-1]
+
+		# sort eigenvalues and eigenvectors according to most significant eigenvalues
+		eigenvalues = eigenvalues[order]
+		eigenvectors = eigenvectors[order]
+
+		self.eigenfaces = eigenvectors * differencefaces
+
 
 
 test = Faces()
