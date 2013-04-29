@@ -1,16 +1,22 @@
 import numpy as np
 import math
+from collections import Counter
 
 class adaBoost:
 
 	def __init__(self):
-		self.data = np.matrix([])
-		self.labels = np.matrix([])
+		self.data 			 = np.matrix([])
+		self.labels 		 = np.matrix([])
 		self.classifierArray = np.matrix([])
 
-	def loadData(self):
-		self.data = np.matrix('[1. 2.1; 2. 1.1; 1.3 1.; 1. 1.; 2. 1.]')
-		self.labels = [1,1,-1,-1,1]
+	# LOAD DATA SHOULD TAKE IN A SET?? FOR CASCADE
+	def loadData(self,positiveSet=[],negativeSet=[]):
+		self.data = np.vstack( [ positiveSet , negativeSet ] )
+		npos,mpos = np.shape(positiveSet)
+		nneg,mneg = np.shape(negativeSet)
+
+		self.labels = ([1 for x in range(npos)])
+		self.labels.extend([-1 for x in range(nneg)])
 
 	def guessClass(self,data,dim,threshold,inequality):
 
@@ -62,33 +68,21 @@ class adaBoost:
 					for point in range(0,n):
 						if classGuess[point] == labelMatrix[point]:
 							errorArray[point] = 0
-					# print "WEIGHTS"
-					# print np.matrix(weights)
-					# print "ERRORARRAY"
-					# print np.matrix(errorArray)
 
 					weightedError = np.matrix(weights).T * np.matrix(errorArray)
-
-					# print "WEIGHTED ERROR"
-					# print weightedError
 
 					# if weighted error is smallest, then put all our current 
 					# stuff in a dictionary
 					if weightedError < minError:
 						minError = weightedError
-						# print "MIN ERROR"
-						# print minError
 						bestClassGuess = classGuess.copy()
 						bestClassifier['dim'] = dim
 						bestClassifier['threshold'] = threshold
 						bestClassifier['inequality'] = inequality
-		# print "BEST CLASS GUESS"
-		# print bestClassGuess
-		# print bestClassifier
-		# print minError
+
 		return bestClassifier,minError,bestClassGuess
 
-	def boost(self,iterations):
+	def boost(self,maxFeatures):
 		weakClassGuessers = []
 		n,m = np.shape(self.data)
 
@@ -99,15 +93,17 @@ class adaBoost:
 		aggregateClassGuess = np.zeros((n,1))
 
 		# the work
-		for i in range (0,iterations):
+		for i in range (0,maxFeatures):
 			
 			# print("ITERATION", i)
 
 			# train best classifier for these weights
 			bestClassifier,error,classGuess = self.trainClassifier(self.data,self.labels,weights,10)
 
+			print classGuess
 			# calculate weight of the classifier
 			alpha = float(math.log(1.0 - error) / max(error,1e-16))
+			print alpha
 			bestClassifier['alpha'] = alpha
 
 			# add classifier to weakClassGuess
@@ -115,41 +111,142 @@ class adaBoost:
 
 			# calculate new weights
 			exponent = np.multiply(1 * alpha * np.matrix(self.labels), classGuess)
-			# print "EXPONENT VECTOR"
-			# print np.exp(exponent.T)
-			# print "ORIGINAL WEIGHTS"
-			# print weights
 			weights = np.multiply(weights,np.exp(exponent.T))
 			weights = weights * (1 / weights.sum())
-			# print "AFTER WEIGHTS"
-			# print weights
+
 			# update aggregateClassGuess
 			aggregateClassGuess = aggregateClassGuess + np.matrix((-1 * alpha * classGuess)).T
-			# print "CLASS GUESS"
+			print np.matrix((-1 * alpha * classGuess)).T
 			# print aggregateClassGuess
-
 			# aggregateErrors
 			aggregateErrors = np.multiply(np.sign(aggregateClassGuess) != np.matrix(self.labels).T, np.ones((n,1)))
 			errorRate = aggregateErrors.sum() / n
-			# print "total error",errorRate,"\n"
-			if errorRate == 0.0: break
+			# print aggregateErrors
+
+			if errorRate == 0.0: 
+				print "NOERROR"
+				break
 
 		self.classifierArray = weakClassGuessers
 
 	def classify(self,data):
-		dataMatrix = np.matrix(data)
-		n,m = np.shape(dataMatrix)
-		aggregateClassGuess = np.matrix(np.zeros((n,1)))
+		classifiedDict = {}
+		for i in data:
+			dataMatrix = np.matrix(data)
+			n,m = np.shape(dataMatrix)
+			aggregateClassGuess = np.matrix(np.zeros((n,1)))
 
-		# for every classifier we train, use it to classguess and then scale by
-		# alpha and add to aggregate guess
-		for i in range (0,len(self.classifierArray)):
-			classGuess = self.guessClass(dataMatrix,self.classifierArray[i]['dim'],self.classifierArray[i]['threshold'],self.classifierArray[i]['inequality'])
-			aggregateClassGuess = aggregateClassGuess + (-1 * self.classifierArray[i]['alpha'] * classGuess)
-			# print aggregateClassGuess
-		return np.sign(aggregateClassGuess)
+			# for every classifier we train, use it to classguess and then scale by
+			# alpha and add to aggregate guess
+			for i in range (0,len(self.classifierArray)):
+				classGuess = self.guessClass(dataMatrix,self.classifierArray[i]['dim'],self.classifierArray[i]['threshold'],self.classifierArray[i]['inequality'])
+				aggregateClassGuess = aggregateClassGuess + (-1 * self.classifierArray[i]['alpha'] * classGuess)
+				# print aggregateClassGuess
+			classifiedDict[i] = np.sign(aggregateClassGuess)
+		return classifiedDict
+
+class cascade:
+
+	def __init__(self):
+		self.subwindow = []
+		self.falsePositiveRate 	   = 1.0
+		self.detectionRate        = 1.0
+		self.positiveSet 		   = self.loadPositives()
+		self.negativeSet  	   = self.loadNegatives()
+		self.cascadedClassifier = {}
+
+	def loadPositives(self):
+		0# load images that have faces
+
+	def loadNegatives(self):
+		0# load non-face images
+
+	def cascadedClassifierGuess(self,data):
+		classifiedDict = {}
+
+		# for every data point
+		for i in data:
+
+			dataMatrix = np.matrix(data)
+			n,m = np.shape(dataMatrix)
+			aggregateClassGuess = np.matrix(np.zeros((n,1)))
+
+			# go through each classifier in our cascaded classifier
+			for (layer,classifier) in self.cascadedClassifier:
+
+				# get a classguess
+				for i in range (0,len(classifier)):
+					classGuess = adaboost.guessClass(dataMatrix,classifier[i]['dim'],classifier[i]['threshold'],classifier[i]['inequality'])
+					aggregateClassGuess = aggregateClassGuess + (-1 * classifier[i]['alpha'] * classGuess)
+
+				# if a layer returns a negative result, automatically return negative
+				if np.sign(aggregateClassGuess) == -1:
+					classifiedDict[i] = -1
+					break
+
+			# else, if every classifier says it's good, then return 1
+			classifiedDict[i] = 1
+
+		return classifiedDict
+
+	def adjustThreshold(self,classifier):
+		classifier['threshold'] -= .05
+
+	def trainCascadedClassifier(self,f,d,Ftarget):
+
+		# while your false positive rate is too high
+		while self.falsePositiveRate > Ftarget:
+
+			n = 0
+			newFalsePositiveRate = self.falsePositiveRate
+
+			adabooster = adaBoost()
+
+			# we're trying to get our false positive rate down
+			while newFalsePositiveRate > (f * self.falsePositiveRate):
+				n += 1
+
+				# make a new adabooster and boost to get a classifier with n features
+				adabooster.loadData(self.positiveSet,self.negativeSet)
+				adabooster.boost(n)
+
+				# add our new classifier to our cascadedClassifier
+				self.cascadedClassifier[n] = adabooster.classifierArray
+
+				# find our classifier's false positive and detection rate
+				negativeSetGuesses = self.cascadedClassifierGuess(self.negativeSet)
+				ncnt = Counter()
+				for k,v in negativeSetGuesses.items():
+					ncnt[v] += 1
+				newFalsePositiveRate = ncnt[1] / len(negativeSetGuesses)
+
+				positiveSetGuesses = self.cascadedClassifierGuess(self.positiveSet)
+				pcnt = Counter()
+				for k,v in positiveSetGuesses.items():
+					pcnt[v] += 1
+				newDetectionRate = pcnt[1] / len(positiveSetGuesses)
+
+				# adjust the most recently added classifier
+				while newDetectionRate < d * self.detectionRate:
+
+					# IMPLEMENT THIS
+					self.adjustThreshold(self.cascadedClassifier[n])
+
+					# re-test and see if we have a good detection rate
+					positiveSetGuesses = self.cascadedClassifierGuess(self.positiveSet)
+					cnt = Counter()
+					for k,v in positiveSetGuesses.items():
+						cnt[v] += 1
+					newDetectionRate = cnt[1] / len(positiveSetGuesses)
+			
+			# replace our current negative set with only false detections
+			self.negativeSet = []
+
+			if newFalsePositiveRate  > self.falsePositiveRate:
+				negativeSetGuesses = self.cascadedClassifierGuess(self.negativeSet)
+				self.negativeSet = [k for (k,v) in negativeSetGuesses.iteritems() if v == 1]
 
 adabooster = adaBoost()
-adabooster.loadData()
+adabooster.loadData( [ [12,3] , [10,4] , [2,3.5] ] , [ [2,10] , [3,11] , [14,12] ] )
 adabooster.boost(30)
-print adabooster.classify([0,0])
+print adabooster.classify([-3,1])
