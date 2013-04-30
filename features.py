@@ -20,7 +20,10 @@ class features:
 
 		int nfeatures = 42310/100
 
-		for i in (0, )
+		for x in range(0, len(ind)):
+			ind[x]= x
+
+		get_features(ind, f)
 
 		# creates first type of feature of two rectangles stacked on top of each other
 		for w in xrange (1, min_patch_side+1):
@@ -124,7 +127,71 @@ class features:
 		for i in xrange (0, len(ind))
 			f[i] = computeFeature(ind[i])
 
+	"""
+	  Type I feature:
+	  
+	  	<w->
+	  ---- h
+	  ++++ h
+
+	"""
+	def typeI( x, y, w, h):
+		sumU = integral_image.findIntegral(x,y,w,h)
+		sumD = integral_image.findIntegral(x,y+h,w,h)
+		return (sumD-sumU)/patch_std
 	
+	"""
+	  Type II feature:
+	  
+	   <w-><w->
+	   ++++---- ^
+	   ++++---- h
+	   ++++---- v
+	 """
+	def typeII(int x, int y, int w, int h):
+
+		sumL = integral_image.findIntegral(x,y,w,h)
+		sumR = integral_image.findIntegral(x+w,y,w,h)
+		return (sumL-sumR)/patch_std
+	
+	"""
+	  Type III feature:
+	  
+	 	<w-><w-><w->
+	   ++++----++++ ^
+	   ++++----++++ h
+	   ++++----++++ v
+	  
+	"""
+	def typeIII(int x, int y, int w, int h):
+
+		sumL = findInt(x,y,w,h)
+		sumC = findInt(x+w,y,w,h)
+		sumR = findInt(x+2*w,y,w,h)
+		# We have to account for the mean, since there are more (+) than (-).
+		return (sumL-sumC+sumR-patch_mean*w*h)/patch_std
+	
+	"""
+	 Type IV feature:
+	 
+	 	<w-><w->
+	  ++++---- ^
+	  ++++---- h
+	  ++++---- v
+	  ----++++ ^
+	  ----++++ h
+	  ----++++ v
+	"""
+	def typeIV(int x, int y, int w, int h):
+		sumLU = findInt(x,y,w,h)
+		sumRU = findInt(x+w,y,w,h)
+		sumLD = findInt(x,y+h,w,h)
+		sumRD = findInt(x+w,y+h,w,h)
+		return (-sumLD+sumRD+sumLU-sumRU)/patch_std
+	
+
+
+
 	# feature comes from the array feature_table
 	# need to take in a feature, its original label of whether a face exists, and return a number using the integral_image func 
 	def get_val (feature, image, label):
