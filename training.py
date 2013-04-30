@@ -67,15 +67,15 @@ class Faces:
 
 	def main(self):
 		self.get_face_images()
-		print self.faces
+		# print self.faces
 		self.mean_face()
-		print self.meanface
+		# print self.meanface
 		self.difference_faces()
-		print self.differencefaces
+		# print self.differencefaces
 		self.covariance()
-		print self.covmatrix
+		# print self.covmatrix
 		self.get_eigenfaces()
-		print self.eigenfaces
+		# print self.eigenfaces
 		self.get_weights()
 		print self.weights
 
