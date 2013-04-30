@@ -1,6 +1,5 @@
 import numpy
 import scipy
-import sys
 
 def integral_image (x):
 	return x.cumsum(1).cumsum(0)
@@ -22,3 +21,33 @@ def integrate (image, r0, c0, r1, c1):
 		S-=image[r1, c0-1]
 
 	return S
+
+
+def findIntegral(x,y,w,h):		
+		"""y  D    C
+		      |----|
+		   |  |    |
+		   |  |----|
+		   |  A    B
+		   | -------> x
+		"""
+
+	if (x>0 && y>0)
+		A = img[x-1, y-1]
+	else
+		A = 0
+
+	if (y>0)
+		B = img[x+w-1, y-1]
+	else
+		B = 0
+		
+	if (x>0)
+		D = img[x-1, y+h-1]
+	else
+		D = 0
+		
+	C = img[x+w-1, y+h-1]
+
+	return A+C-B-D
+
