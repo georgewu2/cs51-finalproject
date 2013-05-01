@@ -1,6 +1,7 @@
 import numpy
 import scipy
 import math
+import Image
 
 class features:
 
@@ -42,7 +43,7 @@ class features:
 			for h in xrange(1, 	min_patch_side+1):
 				for x in xrange(0, min_patch_side-2*w +1):
 					for y in xrange(0, min_patch_side-h+1):
-						features.feature_table[i] = 1
+						features.feature_table[i] = 2
 						features.feature_table[i+1] = x
 						features.feature_table[i+2] = y
 						features.feature_table[i+3] = w
@@ -54,7 +55,7 @@ class features:
 			for h in xrange(1, 	min_patch_side+1):
 				for x in xrange(0, min_patch_side-3*w +1):
 					for y in xrange(0, min_patch_side-h+1):
-						features.feature_table[i] = 1
+						features.feature_table[i] = 3
 						features.feature_table[i+1] = x
 						features.feature_table[i+2] = y
 						features.feature_table[i+3] = w
@@ -66,11 +67,11 @@ class features:
 			for h in xrange(1, 	min_patch_side/2+1):
 				for x in xrange(0, min_patch_side-2*w +1):
 					for y in xrange(0, min_patch_side-2*h+1):
-						features.feature_table[i] = 1
+						features.feature_table[i] = 4
 						features.feature_table[i+1] = x
 						features.feature_table[i+2] = y
 						features.feature_table[i+3] = w
-						features.feature_table[i+5] = h
+						features.feature_table[i+4] = h
 						i+=5
 
 
@@ -89,14 +90,14 @@ class features:
 		w = (int) Math.round(w*patch_scale)
 		h = (int) Math.round(h*patch_scale)
 
-		if feattype ==1:
-			return typeI(x, y, w, h);	
+		if feattype == 1:
+			return typeI(x, y, w, h)	
 		elif feattype ==2: 
-			return typeII(x, y, w, h);
+			return typeII(x, y, w, h)
 		elif feattype ==3:
-			return typeIII(x, y, w, h);
+			return typeIII(x, y, w, h)
 		elif feattype ==4:
-			return typeIV(x, y, w, h);
+			return typeIV(x, y, w, h)
 		else:
 			print 'Tried to use feature type:' + str(ind)
 
@@ -116,7 +117,6 @@ class features:
 
 		if (meanSqr<=0) 
 			patch_std = 1
-		
 		else
 			patch_std = math.sqrt(math.pow(mean,2)+meanSqr)
 		
@@ -126,6 +126,7 @@ class features:
 	def get_features (ind, f):
 		for i in xrange (0, len(ind))
 			f[i] = computeFeature(ind[i])
+
 
 	"""
 	  Type I feature:
@@ -189,8 +190,6 @@ class features:
 		sumRD = findInt(x+w,y+h,w,h)
 		return (-sumLD+sumRD+sumLU-sumRU)/patch_std
 	
-
-
 
 	# feature comes from the array feature_table
 	# need to take in a feature, its original label of whether a face exists, and return a number using the integral_image func 
