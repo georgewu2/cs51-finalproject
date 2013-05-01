@@ -1,7 +1,7 @@
 <!DOCTYPE>
 <html>
   <head>
-    <title>Hand gestures</title>
+    <title>Eigenfaces</title>
     <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
     <style type="text/css">
       html { height: 100% }
@@ -15,18 +15,18 @@
   <body>
     <div>
       <div>
-        <canvas width="320" id="canvas" height="240"></canvas>
+        <canvas width="640" id="canvas" height="480"></canvas>
+  	<p><button id="capture-button">Capture Face</button></p>
+	<p><button id="capture-face">Capture Smile</button></p>
+        <input type="button" value="Restart" onclick="location.reload()">
       </div>
       <div>
         <img id="target" style="display: inline;"/>
         <video id="live" width="320" height="240" autoplay style="visibility: hidden; display: inline;"></video>
         <div>
-          Pipeline for Hand Detection. See source code here:<br>
-          <a href="https://github.com/kennyyu/cs283-project">github.com/kennyyu</a>
         </div>
-        <div id="direction"></div>
       </div>
     </div>
-    <div id="map_canvas" style="left: 330px; top: -640px; width:640px; height:640px"></div>
+
   </body>
 </html>
