@@ -1,19 +1,88 @@
+import base64
 import cv2
-NUM_FRAMES = 50
-cv2.namedWindow("preview")
-capture = cv2.VideoCapture(0)
+import os
+import pipeline
+import threading
+import tornado.ioloop
+import tornado.web
+import tornado.websocket
 
-if capture.isOpened(): # try to get the first frame
-    rval, frame = capture.read()
-else:
-    rval = False
+# Directory for temporary files
+DIRECTORY = os.path.join(os.path.dirname(__file__), "tmp")
 
-if rval:
-    for i in range (-1, NUM_FRAMES):
-        frame = cv2.flip(frame,1)
-        cv2.imwrite("data/img%04d.jpg" % i, frame)
-        cv2.imshow("preview", frame)
-        rval, frame = capture.read()
-        key = cv2.waitKey(20)
-        if key == 27: # exit on ESC
-            break
+# Pipeline to run on this server
+PIPELINE = None
+
+
+DIRECTORY = os.path.join(os.path.dirname(__file__), "tmp")
+class MainHandler(tornado.web.RequestHandler):
+    """
+    Handles the request for the default index.html web page.
+    """
+    def get(self):
+        self.render("index.html")
+
+class VideoWebSocketHandler(tornado.websocket.WebSocketHandler):
+    """
+    Creates a web socket connection to the client for receiving frames
+    and sending back the annotated frame and overall motion of the scene.
+    """
+
+    # Create a unique id per websocket
+    id = 0
+    frames = 0
+    lock = threading.Lock()
+    
+    def open(self):
+        
+        with self.__class__.lock:
+            self.__class__.id += 1
+            self.id = self.__class__.id
+        self.file_in = DIRECTORY + "/in" + str(self.id) + ".jpeg"
+        self.prev = None
+        if not os.path.exists(DIRECTORY):
+            os.makedirs(DIRECTORY)
+        print "Websocket " + str(self.id) + " opened"
+
+    def on_message(self, message):
+        newim = self.parse_image(message)
+        if self.prev == None:
+            self.prev = newim
+        else:
+	    cv2.imwrite("data/analysis/img%04d.jpg" % self.frames, newim)
+            self.frames += 1
+            self.prev = newim
+
+
+    def on_close(self):
+        if os.path.isfile(self.file_in):
+            os.remove(self.file_in)
+        print "Websocket " + str(self.id) + " closed"
+
+    def parse_image(self, buf):
+        img_str = base64.b64decode(buf)
+        img = open(self.file_in, "w+");
+        img.write(base64.b64decode(buf))
+        img.close()
+        return cv2.imread(self.file_in)
+
+settings = {
+    "static_path": os.path.join(os.path.dirname(__file__), "static"),
+}
+
+application = tornado.web.Application([
+    (r"/", MainHandler),
+    (r"/websocket", VideoWebSocketHandler),
+    (r"/static", tornado.web.StaticFileHandler, dict(path=settings['static_path'])),
+], **settings)
+
+if __name__ == "__main__":
+    pipeline.Pipeline.parser.add_argument("-p", "--port", type=int,
+                                          default=8888, dest="port",
+                                          help="port to listen to")
+    args = pipeline.Pipeline.parser.parse_args()
+    kwargs = vars(args)
+    application.listen(kwargs["port"])
+    del kwargs["port"]
+    PIPELINE = pipeline.Pipeline.create(**kwargs)
+    tornado.ioloop.IOLoop.instance().start()
