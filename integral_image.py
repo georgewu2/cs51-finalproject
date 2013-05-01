@@ -1,46 +1,39 @@
 import numpy
 import scipy
+import training
 
-def integral_image (x):
-	return x.cumsum(1).cumsum(0)
+class Integrate:
 
-# r0, c0 is the top left corner of the block to be summed
-# r1,c1 is the bottom right corner of the block
-def integrate (image, r0, c0, r1, c1):
-	S = 0
+	def __init__(self):
+		original_img = self.faces.get_frame_vector("face_1.jpg")
+		integral_img = self.integral_image(original_img)
 
-	S += image[r1, c1]
-
-	if(r0-1 >= 0) and (c0-1 >= 0):
-		S +=image[r0-1, c0-1]
-
-	if (r0-1 >=0):
-		S-=image[r0-1, c1]
-
-	if (c0-1>=0):
-		S-=image[r1, c0-1]
-
-	return S
-
-
-def findIntegral(x,y,w,h):
 	
-	if (x>0 and y>0):
-		A = img[x-1, y-1]
-	else:
-		A = 0
+	# x is an ndarray of the input 
+	# returns an ndarray that is an integral image / summed area table
+	def integral_image (self, x):
+		return x.cumsum(1).cumsum(0)
 
-	if (y>0):
-		B = img[x+w-1, y-1]
-	else:
-		B = 0
+	# x, y are the coordinates of the corner of the box to be summed
+	# w, h are the width and height of the rectangle to be summed
+	def findIntegral(self, x,y,w,h):
 		
-	if (x>0):
-		D = img[x-1, y+h-1]
-	else:
-		D = 0
-		
-	C = img[x+w-1, y+h-1]
+		if (x>0 and y>0):
+			A = self.integral_img[x-1, y-1]
+		else:
+			A = 0
 
-	return A+C-B-D
+		if (y>0):
+			B = self.integral_img[x+w-1, y-1]
+		else:
+			B = 0
+			
+		if (x>0):
+			D = self.integral_img[x-1, y+h-1]
+		else:
+			D = 0
+			
+		C = self.integral_img[x+w-1, y+h-1]
+
+		return A+C-B-D
 

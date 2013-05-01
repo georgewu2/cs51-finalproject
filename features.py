@@ -6,17 +6,6 @@ from training import Faces
 
 class features:
 
-	# will be an array of all possible features for that image
-	f = []
-	# 
-	feature_table = [] 
-	origin_x = 0
-	origin_y = 0
-	patch_scale = 0.0
-	patch_mean = 0.0
-	patch_std = 0.0
-	img = integral_image.integral_image(training.get_frame_vector("face_1.jpg"))
-
 	def __init__(self):
 
 		# will be an array of all possible features for that image
@@ -28,7 +17,7 @@ class features:
 		self.patch_mean = 0.0
 		self.patch_std = 0.0
 		self.faces = Faces()
-		self.img = integral_image.integral_image(self.faces.get_frame_vector("face_1.jpg"))
+		self.img = integral_image.integral_image()
 
 		print "LOL"
 		self.init_helper()
@@ -125,7 +114,8 @@ class features:
 		self.get_features(ind, self.f)
 
 
-	# calculates value of the feature number ind and returns feature value
+	# calculates value of the feature number ind
+	# returns feature value
 	def compute_features (ind):
 		ind *= 5
 		feattype = features.feature_table[ind]
@@ -160,10 +150,10 @@ class features:
 		patch_scale = (float(w))/(float(min_patch_side))
 
 		# std^2 = mean(x^2) + mean(x)^2
-		mean = findIntegral(x,y,w,w)
+		mean = Integrate.findIntegral(x,y,w,w)
 		mean /= (float((w*w)))
 
-		meanSqr = findIntegral(x,y,w,w)
+		meanSqr = Integrate.findIntegral(x,y,w,w)
 		meanSqr /= (float((w*w)))
 
 		if (meanSqr<=0):
@@ -179,21 +169,21 @@ class features:
 
 
 	"""
+
 	  Type I feature:
-	  
 	  	<w->
 	  ---- h
 	  ++++ h
 
 	"""
 	def typeI(self, x, y, w, h):
-		sumU = integral_image.findIntegral(x,y,w,h)
-		sumD = integral_image.findIntegral(x,y+h,w,h)
+		sumU = Integrate.findIntegral(x,y,w,h)
+		sumD = Integrate.findIntegral(x,y+h,w,h)
 		return (sumD-sumU)/patch_std
 	
 	"""
+
 	  Type II feature:
-	  
 	   <w-><w->
 	   ++++---- ^
 	   ++++---- h
@@ -206,8 +196,8 @@ class features:
 		return (sumL-sumR)/patch_std
 	
 	"""
+
 	  Type III feature:
-	  
 	 	<w-><w-><w->
 	   ++++----++++ ^
 	   ++++----++++ h
@@ -223,8 +213,8 @@ class features:
 		return (sumL-sumC+sumR-patch_mean*w*h)/patch_std
 	
 	"""
+
 	 Type IV feature:
-	 
 	 	<w-><w->
 	  ++++---- ^
 	  ++++---- h
@@ -239,18 +229,6 @@ class features:
 		sumLD = findInt(x,y+h,w,h)
 		sumRD = findInt(x+w,y+h,w,h)
 		return (-sumLD+sumRD+sumLU-sumRU)/patch_std
-	
-
-	# feature comes from the array feature_table
-	# need to take in a feature, its original label of whether a face exists, and return a number using the integral_image func 
-	def get_val (self, feature, image, label):
-		0
-
-	# iterates through different features and resize them 
-	def itrfeatures(self, image): 0
-
-	# take in the image, the feature, its number, and return the guess
-	def guess (self, image, feature, val): 0
-
+		
 featuretest = features()
 featuretest.compute_features(1)
