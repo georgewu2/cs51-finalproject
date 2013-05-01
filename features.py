@@ -13,7 +13,7 @@ class features:
 	patch_scale = 0.0
 	patch_mean = 0.0
 	patch_std = 0.0
-	img = integral_image[]#what do i put in here?!?
+	img = integral_image.integral_image(training.get_frame_vector("face_1.jpg"))
 
 	def __init__():
 		i = 0
@@ -120,7 +120,6 @@ class features:
 		else
 			patch_std = math.sqrt(math.pow(mean,2)+meanSqr)
 		
-
 
 	# takes in array ind and populates array f with features for that image
 	def get_features (ind, f):
