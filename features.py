@@ -7,7 +7,8 @@ class features:
 
 	# will be an array of all possible features for that image
 	f = []
-	feature_table = []
+	# 
+	feature_table = [] 
 	origin_x = 0
 	origin_y = 0
 	patch_scale = 0.0
@@ -17,9 +18,10 @@ class features:
 
 	def __init__():
 		i = 0
-		min_patch_side = 24
+		min_patch_side = 24 # smallest block size 
+		numfeatures - 53130
 
-		int nfeatures = 42310/100
+		nfeatures = 42310/100 
 
 		for x in range(0, len(ind)):
 			ind[x]= x
@@ -30,7 +32,7 @@ class features:
 		for w in xrange (1, min_patch_side+1):
 			for h in xrange(1, 	min_patch_side/2 +1):
 				for x in xrange(0, min_patch_side-w +1):
-					for y in xrange(0, min_patch_side-2*h+1):
+					for y in xrange(0, min_patch_side-2*h+1):	
 						features.feature_table[i] = 1
 						features.feature_table[i+1] = x
 						features.feature_table[i+2] = y
@@ -75,8 +77,8 @@ class features:
 						i+=5
 
 
-	# calculates value of the feature 
-	def compute_features (int ind):
+	# calculates value of the feature number ind and returns feature value
+	def compute_features (ind):
 		ind *= 5
 		feattype = features.feature_table[ind]
 		x = features.feature_table[ind+1]
