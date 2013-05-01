@@ -12,7 +12,7 @@ def integrate (image, r0, c0, r1, c1):
 	S += image[r1, c1]
 
 	if(r0-1 >= 0) and (c0-1 >= 0):
-		S +=image[r0-1], c0-1]
+		S +=image[r0-1, c0-1]
 
 	if (r0-1 >=0):
 		S-=image[r0-1, c1]
@@ -23,28 +23,21 @@ def integrate (image, r0, c0, r1, c1):
 	return S
 
 
-def findIntegral(x,y,w,h):		
-		"""y  D    C
-		      |----|
-		   |  |    |
-		   |  |----|
-		   |  A    B
-		   | -------> x
-		"""
-
-	if (x>0 && y>0)
+def findIntegral(x,y,w,h):
+	
+	if (x>0 and y>0):
 		A = img[x-1, y-1]
-	else
+	else:
 		A = 0
 
-	if (y>0)
+	if (y>0):
 		B = img[x+w-1, y-1]
-	else
+	else:
 		B = 0
 		
-	if (x>0)
+	if (x>0):
 		D = img[x-1, y+h-1]
-	else
+	else:
 		D = 0
 		
 	C = img[x+w-1, y+h-1]
