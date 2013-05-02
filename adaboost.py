@@ -10,8 +10,38 @@ class adaBoost:
 		self.labels 		 = np.matrix([])
 		self.classifierArray = np.matrix([])
 
+	def get_frame_vector(self, video_frame, flatten=True):
+		im = Image.open(video_frame)
+
+		# convert to grayscale
+		im_gray = im.convert('L')
+
+		# convert to a matrix
+		im_matrix = np.matrix(im_gray)
+		if flatten == True:
+			return im_matrix.flatten('F')
+		else:
+			return im_matrix
+
 	# LOAD DATA SHOULD TAKE IN A SET?? FOR CASCADE
-	def loadData(self,positiveSet=[],negativeSet=[]):
+	def loadData(self,positiveDir="/positive",negativeDir="/negative"):
+
+		positiveSet = []
+		negativeSet = []
+
+		for directory in (positiveDir,negativeDir):
+
+			images = os.listdir(os.getcwd() + directory)
+			
+			# get rid of the .DS_Store file
+			images.pop(0)
+
+			# add each vector to the list
+			for i in images:
+				directory.append(self.get_frame_vector(images + i,False))
+
+
+
 		self.data = np.vstack( [ positiveSet , negativeSet ] )
 		npos,mpos = np.shape(positiveSet)
 		nneg,mneg = np.shape(negativeSet)
