@@ -25,7 +25,7 @@ class adaBoost:
 			return im_matrix
 
 	# LOAD DATA SHOULD TAKE IN A SET?? FOR CASCADE
-	def loadData(self,positiveDir="positive/",negativeDir="negative/"):
+	def loadData(self,positiveDir="testimgspos/",negativeDir="testimgsneg/"):
 
 		positiveSet = []
 		negativeSet = []
@@ -38,7 +38,7 @@ class adaBoost:
 		for i in positiveImages:
 			positiveSet.append(self.get_frame_vector(positiveDir + i,False))
 
-		negativeImages = os.listdir(os.getcwd() + "/" + positiveDir)
+		negativeImages = os.listdir(os.getcwd() + "/" + negativeDir)
 		# # get rid of the .DS_Store file
 		# images.pop(0)
 
@@ -46,12 +46,14 @@ class adaBoost:
 		for i in negativeImages:
 			negativeSet.append(self.get_frame_vector(negativeDir + i,False))
 
-		self.data = np.vstack( [ positiveSet , negativeSet ] )
-		npos,mpos = np.shape(positiveSet)
-		nneg,mneg = np.shape(negativeSet)
+		bigSet = []
+		bigSet.extend(positiveSet)
+		bigSet.extend(negativeSet)
 
-		self.labels = ([1 for x in range(npos)])
-		self.labels.extend([-1 for x in range(nneg)])
+		self.data = bigSet
+
+		self.labels = ([1 for x in range(len(positiveSet))])
+		self.labels.extend([-1 for x in range(len(negativeSet))])
 
 	def guessClass(self,data,dim,threshold,inequality):
 
@@ -73,9 +75,9 @@ class adaBoost:
 	def trainClassifier(self,data,labels,weights,steps):
 
 		# setup
-		dataMatrix = np.matrix(data)
+		dataMatrix = self.data
 		labelMatrix = np.matrix(labels).T
-		n,m = np.shape(data)
+		n,m,o = np.shape(data)
 		bestClassifier = {}
 		bestClassGuess = np.zeros((n,1))
 		minError = float('inf')
@@ -119,7 +121,7 @@ class adaBoost:
 
 	def boost(self,maxFeatures):
 		weakClassGuessers = []
-		n,m = np.shape(self.data)
+		n,m,o = np.shape(self.data)
 
 		# setup weight vector
 		weights = np.ones((n,1))
