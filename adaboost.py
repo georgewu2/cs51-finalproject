@@ -2,6 +2,7 @@ import numpy as np
 import math
 from collections import Counter
 import Image
+import os
 
 class adaBoost:
 
@@ -24,23 +25,26 @@ class adaBoost:
 			return im_matrix
 
 	# LOAD DATA SHOULD TAKE IN A SET?? FOR CASCADE
-	def loadData(self,positiveDir="/positive",negativeDir="/negative"):
+	def loadData(self,positiveDir="positive/",negativeDir="negative/"):
 
 		positiveSet = []
 		negativeSet = []
 
-		for directory in (positiveDir,negativeDir):
+		positiveImages = os.listdir(os.getcwd() + "/" + positiveDir)
+		# # get rid of the .DS_Store file
+		# images.pop(0)
 
-			images = os.listdir(os.getcwd() + directory)
-			
-			# get rid of the .DS_Store file
-			images.pop(0)
+		# add each vector to the list
+		for i in positiveImages:
+			positiveSet.append(self.get_frame_vector(positiveDir + i,False))
 
-			# add each vector to the list
-			for i in images:
-				directory.append(self.get_frame_vector(images + i,False))
+		negativeImages = os.listdir(os.getcwd() + "/" + positiveDir)
+		# # get rid of the .DS_Store file
+		# images.pop(0)
 
-
+		# add each vector to the list
+		for i in negativeImages:
+			negativeSet.append(self.get_frame_vector(negativeDir + i,False))
 
 		self.data = np.vstack( [ positiveSet , negativeSet ] )
 		npos,mpos = np.shape(positiveSet)
@@ -278,6 +282,6 @@ class cascade:
 				self.negativeSet = [k for (k,v) in negativeSetGuesses.iteritems() if v == 1]
 
 adabooster = adaBoost()
-adabooster.loadData( [ [12,3] , [10,4] , [2,3.5] ] , [ [2,10] , [3,11] , [14,12] ] )
+adabooster.loadData()
 adabooster.boost(30)
 print adabooster.classify([-3,1])
