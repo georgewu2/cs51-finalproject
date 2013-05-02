@@ -6,14 +6,13 @@ class Integrate:
 
 	def __init__(self,img):
 		self.faces = Faces()
-		self.original_img = self.faces.get_frame_vector(img,False)
-		self.integral_img = self.integral_image()
+		self.integral_img = self.integral_image(img)
 
 	
 	# x is an ndarray of the input 
 	# returns an ndarray that is an integral image / summed area table
-	def integral_image (self):
-		return self.original_img.cumsum(1).cumsum(0)
+	def integral_image (self,img):
+		return img.cumsum(1).cumsum(0)
 
 	# x, y are the coordinates of the corner of the box to be summed
 	# w, h are the width and height of the rectangle to be summed

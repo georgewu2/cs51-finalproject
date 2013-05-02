@@ -24,7 +24,6 @@ class adaBoost:
 		else:
 			return im_matrix
 
-	# LOAD DATA SHOULD TAKE IN A SET?? FOR CASCADE
 	def loadData(self,positiveDir="testimgspos/",negativeDir="testimgsneg/"):
 
 		positiveSet = []
@@ -58,18 +57,20 @@ class adaBoost:
 	def guessClass(self,data,dim,threshold,inequality):
 
 		# get dimensions and make a return vector
-		n,m = np.shape(data)
+		n,m,o = np.shape(data)
 		classed = np.ones((n))
 
 		# if a data doesn't meet threshold make it -1
 		if inequality == '<=':
-			for point in range(0,n):
-				if data[point,dim] <= threshold:
-					classed[point] = -1
+			for img in range(0,n):
+				integralImageWithFeatures = Features(data[img])
+				if sum(integralImageWithFeatures.f) <= threshold
+					classed[img] = -1
+
 		else:
-			for point in range(0,n):
-				if data[point,dim] > threshold:
-					classed[point] = -1
+				integralImageWithFeatures = Features(data[img])
+				if sum(integralImageWithFeatures.f) > threshold
+					classed[img] = -1
 		return classed
 
 	def trainClassifier(self,data,labels,weights,steps):
@@ -83,7 +84,7 @@ class adaBoost:
 		minError = float('inf')
 
 		# the work
-		for dim in range(0,m):
+		for feature in range(0,len()):
 			# find min and max of x or y coordinates
 			rangeMin = dataMatrix[:,dim].min()
 			rangeMax = dataMatrix[:,dim].max()

@@ -6,7 +6,7 @@ from training import Faces
 
 class Features:
 
-	def __init__(self):
+	def __init__(self,img):
 
 		# will be an array of all possible features for that image
 		self.f = []
@@ -18,7 +18,7 @@ class Features:
 		self.patch_std = 1.0
 		self.faces = Faces()
 
-		self.pic = Integrate("face_1.jpg")
+		self.pic = Integrate(img)
 		self.img = self.pic.integral_image()
 
 		self.init_helper()
@@ -192,6 +192,6 @@ class Features:
 		sumRD = integral_image.findIntegral(x+w,y+h,w,h)
 		return (-int(sumLD)+int(sumRD)+int(sumLU)-int(sumRU)) / self.patch_std
 		
-featuretest = Features()
+featuretest = Features("face1.jpg")
 
 print featuretest.f
