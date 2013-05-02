@@ -14,7 +14,7 @@ class Faces:
 		self.eigenfaces = None
 		self.weights = None
 
-	def get_frame_vector(self, video_frame):
+	def get_frame_vector(self, video_frame, flatten=True):
 		im = Image.open(video_frame)
 
 		# convert to grayscale
@@ -22,7 +22,10 @@ class Faces:
 
 		# convert to a matrix
 		im_matrix = np.matrix(im_gray)
-		return im_matrix.flatten('F')
+		if flatten == True:
+			return im_matrix.flatten('F')
+		else:
+			return im_matrix
 
 	def get_face_images(self):
 		# get all files of image directory
