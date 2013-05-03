@@ -12,10 +12,10 @@ class perceptron:
 	"""
 	def __init__(self, imgs, imglabels):	
 	# perceptron initialization
-		self.classws = [0]*53130
+		self.classws = [0]*134736
 
 		# weights for classifying are randomly initialized to -1 or 1
-		for w in classws:
+		for w in self.classws:
 			w = random.randint(0,1)
 			if w = 0
 				w = -1
@@ -94,7 +94,7 @@ class perceptron:
 		learned = False
 		while not learned:
 			globalError = 0.00
-			for i in range (0,53130): # for each sample
+			for i in range (0,len(imgs)): # for each sample
 			    img = imgs [i]
 			    r = self.response(img)    
 			    if self.labels[i] != r: # if we have a wrong response
