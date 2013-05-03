@@ -24,7 +24,7 @@ class adaBoost:
 		self.data 			 = np.matrix([])
 		self.labels 		 = np.matrix([])
 		self.classifierArray = np.matrix([])
-		self.featuresMatrix = np.zeros((1,134736))
+		self.featuresMatrix = np.zeros((1,8628))
 
 	def loadData(self,positiveDir="testimgspos/",negativeDir="testimgsneg/"):
 
@@ -56,9 +56,11 @@ class adaBoost:
 		self.labels = ([1 for x in range(len(positiveSet))])
 		self.labels.extend([-1 for x in range(len(negativeSet))])
 
+		x = 0
 		for img in self.data:
+			print x
+			x += 1
 			integralImageWithFeatures = Features(img)
-			print "dim of features:", len(integralImageWithFeatures.f)
 			self.featuresMatrix = np.vstack([self.featuresMatrix,integralImageWithFeatures.f])
 		self.featuresMatrix = np.delete(self.featuresMatrix,0,0)
 		n,m = np.shape(self.featuresMatrix)
@@ -121,12 +123,12 @@ class adaBoost:
 		# FUCK YEAH
 
 		# the work
-		for feature in range(1,50):
+		for feature in range(0,8628):
 			# find min and max of x or y coordinates
 			rangeMin = self.featuresMatrix[:,feature].min()
 			rangeMax = self.featuresMatrix[:,feature].max()
 
-			print "FEATURE", feature, self.featuresMatrix[:,feature]
+			# print "FEATURE", feature, self.featuresMatrix[:,feature]
 
 			stepSize = (rangeMax - rangeMin) / float(steps)
 
@@ -152,7 +154,7 @@ class adaBoost:
 					# if weighted error is smallest, then put all our current 
 					# stuff in a dictionary
 					if weightedError < minError:
-						print "CLASSGUESS", classGuess
+						# print "CLASSGUESS", classGuess
 						minError = weightedError
 						bestClassGuess = classGuess.copy()
 						bestClassifier['feature'] = feature
@@ -193,7 +195,7 @@ class adaBoost:
 			
 			bestClassifier['alpha'] = alpha
 
-			print "ALPHA", alpha
+			# print "ALPHA", alpha
 
 			# add classifier to weakClassGuess
 			weakClassGuessers.append(bestClassifier)
@@ -201,23 +203,23 @@ class adaBoost:
 			# calculate new weights
 			exponent = np.multiply(1 * alpha * np.matrix(self.labels), classGuess)
 
-			print "EXPONENT", exponent
+			# print "EXPONENT", exponent
 
 			weights = np.multiply(weights,np.exp(exponent.T))
 			weights = weights * (1 / weights.sum())
 
-			print "WEIGHTS", weights
+			# print "WEIGHTS", weights
 
 			# update aggregateClassGuess
 			aggregateClassGuess = aggregateClassGuess + np.matrix((-1 * alpha * classGuess)).T
 
-			print "AGGREGATE CLASS GUESS",aggregateClassGuess
+			# print "AGGREGATE CLASS GUESS",aggregateClassGuess
 			# aggregateErrors
 			aggregateErrors = np.multiply(np.sign(aggregateClassGuess) != np.matrix(self.labels).T, np.ones((n,1)))
 			errorRate = aggregateErrors.sum() / n
 			# print aggregateErrors
 
-			print "ERRORRATE", errorRate
+			# print "ERRORRATE", errorRate
 
 			if errorRate == 0.0: 
 				print "NOERROR"
@@ -225,7 +227,7 @@ class adaBoost:
 
 		self.classifierArray = weakClassGuessers
 
-		print self.classifierArray
+		# print self.classifierArray
 
 	def classify(self,data):
 		classifiedDict = {}
@@ -240,9 +242,9 @@ class adaBoost:
 			# alpha and add to aggregate guess
 			for classifier in range (0,len(self.classifierArray)):
 				classGuess = self.guessClass(featuresMatrix,self.classifierArray[classifier]['feature'],self.classifierArray[classifier]['threshold'],self.classifierArray[classifier]['inequality'])
-				print "CLASS GUESS",classGuess
+				# print "CLASS GUESS",classGuess
 				aggregateClassGuess = aggregateClassGuess + (self.classifierArray[classifier]['alpha'] * classGuess)
-				print "AGG CLASS GUESS", aggregateClassGuess
+				# print "AGG CLASS GUESS", aggregateClassGuess
 			
 			classifiedDict[i] = np.sign(aggregateClassGuess)
 		return classifiedDict
@@ -277,7 +279,7 @@ class cascade:
 		# # get rid of the .DS_Store file
 		negativeImages.pop(0)
 
-		print negativeImages
+		# print negativeImages
 		# add each vector to the list
 		for i in negativeImages:
 			print negativeDir + i
@@ -291,22 +293,23 @@ class cascade:
 		# for every data point
 		for i in data:
 
-			dataMatrix = np.matrix(i)
-			n,m = np.shape(dataMatrix)
-			aggregateClassGuess = np.matrix(np.zeros((n,1)))
+			features = Features(i)
+			featuresMatrix = features.f
+			n = len(data)
+			aggregateClassGuess = 0
 
 			# go through each classifier in our cascaded classifier
-			print self.cascadedClassifier
+			# print self.cascadedClassifier
 			for layer,classifier in self.cascadedClassifier.items():
 
 				# get a classguess
 				for i in range (0,len(classifier)):
-					classGuess = adabooster.guessClass(adabooster.featuresMatrix,classifier[i]['feature'],classifier[i]['threshold'],classifier[i]['inequality'])
-					print "CLASS GUESS", classGuess
+					classGuess = adabooster.guessClass(featuresMatrix,classifier[i]['feature'],classifier[i]['threshold'],classifier[i]['inequality'])
+					# print "CLASS GUESS", classGuess
 					aggregateClassGuess = aggregateClassGuess + (-1 * classifier[i]['alpha'] * classGuess)
 
 				# if a layer returns a negative result, automatically return negative
-				print "AGG GUESS",aggregateClassGuess
+				# print "AGG GUESS",aggregateClassGuess
 				if np.sign(aggregateClassGuess) == -1:
 					classifiedDict[i] = -1
 					break
@@ -333,6 +336,8 @@ class cascade:
 
 			# we're trying to get our false positive rate down
 			while newFalsePositiveRate > (f * self.falsePositiveRate):
+				print "FALSE POSITIVE RATE", self.falsePositiveRate
+
 				n += 1
 
 				# make a new adabooster and boost to get a classifier with n features
@@ -374,22 +379,22 @@ class cascade:
 				negativeSetGuesses = self.cascadedClassifierGuess(self.negativeSet)
 				self.negativeSet = [k for (k,v) in negativeSetGuesses.iteritems() if v == 1]
 
-# cascader = cascade()
-# cascader.trainCascadedClassifier(.1,.9,.1)
+cascader = cascade()
+cascader.trainCascadedClassifier(.1,.9,.1)
 
-adabooster = adaBoost()
-adabooster.loadData()
-adabooster.boost(10)
+# adabooster = adaBoost()
+# adabooster.loadData()
+# adabooster.boost(10)
 
-positiveImages = os.listdir(os.getcwd() + "/testconfirmedpos")
-positiveImages.pop(0)
+# positiveImages = os.listdir(os.getcwd() + "/testconfirmedpos")
+# positiveImages.pop(0)
 
-positiveSet = [v for k,v in (adabooster.classify(map(lambda x : get_frame_vector("testconfirmedpos/" + x,False),positiveImages))).items()]
+# positiveSet = [v for k,v in (adabooster.classify(map(lambda x : get_frame_vector("testconfirmedpos/" + x,False),positiveImages))).items()]
 
-negativeImages = os.listdir(os.getcwd() + "/testconfirmedneg")
-negativeImages.pop(0)
+# negativeImages = os.listdir(os.getcwd() + "/testconfirmedneg")
+# negativeImages.pop(0)
 
-negativeSet = [v for k,v in (adabooster.classify(map(lambda x : get_frame_vector("testconfirmedneg/" + x,False),negativeImages))).items()]
+# negativeSet = [v for k,v in (adabooster.classify(map(lambda x : get_frame_vector("testconfirmedneg/" + x,False),negativeImages))).items()]
 
-print "POSITIVE",positiveSet
-print "NEGATIVE",negativeSet
+# print "POSITIVE",positiveSet
+# print "NEGATIVE",negativeSet
