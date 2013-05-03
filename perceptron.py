@@ -1,5 +1,7 @@
-from feature import Features
-import numpy
+from features import Features
+import numpy as np
+import Image
+import random
 
 
 class perceptron:
@@ -12,12 +14,12 @@ class perceptron:
 	"""
 	def __init__(self, imgs, imglabels):	
 	# perceptron initialization
-		self.classws = [0]*53130
+		self.classws = [0]*134736
 
 		# weights for classifying are randomly initialized to -1 or 1
-		for w in classws:
+		for w in self.classws:
 			w = random.randint(0,1)
-			if w = 0
+			if w == 0:
 				w = -1
 
 		# alpha value - to test for 0.1, 0.5, 11, 10
@@ -43,7 +45,7 @@ class perceptron:
 		"""
 
 		# after training, assigns threshold value for guessing
-		self.threshold = train(self.images)
+		self.threshold = self.train(self.images)
 
 
 	"""
@@ -65,7 +67,7 @@ class perceptron:
   		pic = Features(img) 
 
   		# classifies image and returns "stupid" guess
-  		y = classify(pic.f, self.classws)   
+  		y = self.classify(pic.f, self.classws)   
   		if y >= 0:
    			return 1
   		else:
@@ -85,8 +87,6 @@ class perceptron:
 		self.w.append(lastw + self.learningRate*iterError*x)
 
 
-
-
 	""" 
 
 	trains all the vector in data.
@@ -96,7 +96,7 @@ class perceptron:
 		learned = False
 		while not learned:
 			globalError = 0.00
-			for i in range (0,53130): # for each sample
+			for i in range (0,len(imgs)): # for each sample
 			    img = imgs [i]
 			    r = self.response(img)    
 			    if self.labels[i] != r: # if we have a wrong response
@@ -113,8 +113,14 @@ class perceptron:
 	# take in the newimage return the guess
 	def guess (self, image): 
 		pic = Feature(image)
-		guess = classify (pic.f, self.w)
-		if(guess >= threshold)
+		guess = self.classify (pic.f, self.w)
+		if(guess >= threshold):
 			return 1
-		else 
+		else: 
 			return -1
+
+im = Image.open("img0001.jpg")
+im_gray = im.convert('L')
+im_matrix = np.matrix(im_gray)
+newp = perceptron([im_matrix], [1])
+print newp.threshold
