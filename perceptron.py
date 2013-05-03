@@ -2,6 +2,8 @@ from features import Features
 import numpy as np
 import Image
 import random
+import os
+from training import Faces
 
 
 class perceptron:
@@ -119,8 +121,48 @@ class perceptron:
 		else: 
 			return -1
 
-im = Image.open("img0001.jpg")
+	def test1 (self):
+
+		positiveimages = os.listdir(os.getcwd() + "/positive")
+		negativeimages = os.listdir(os.getcwd() + "/negative")
+
+		# get rid of the .DS_Store file
+		positiveimages.pop(0)
+		negativeimages.pop(0)
+		posimgs = []
+		negimgs = []
+		print positiveimages
+		for i in positiveimages:
+			im = Image.open("positive/" + i)
+			im_gray = im.convert('L')
+			posimgs.append(np.matrix(im_gray))
+
+		for i in negativeimages:
+			im = Image.open("negative/" + i)
+			im_gray = im.convert('L')
+			negimgs.append(np.matrix(im_gray))
+
+		labels=[]
+
+		for x in xrange(0, len(posimgs)):
+			labels.append (1)
+
+		for x in xrange(0, len(negimgs)):
+			labels.append (0)
+
+		totalimgs = posimgs + negimgs
+		newp = perceptron(totalimgs, labels)
+		print newp.threshold
+
+
+dummynew = perceptron([], [])
+dummynew.test1()
+
+
+"""
+im = Image.open("img0000.jpg")
 im_gray = im.convert('L')
 im_matrix = np.matrix(im_gray)
 newp = perceptron([im_matrix], [1])
 print newp.threshold
+"""

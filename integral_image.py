@@ -1,5 +1,5 @@
 import numpy
-import scipy
+#import scipy
 from training import Faces
 
 class Integrate:
