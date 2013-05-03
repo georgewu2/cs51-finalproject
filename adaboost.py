@@ -2,6 +2,7 @@ import numpy as np
 import math
 from collections import Counter
 import Image
+import os
 
 class adaBoost:
 
@@ -10,14 +11,49 @@ class adaBoost:
 		self.labels 		 = np.matrix([])
 		self.classifierArray = np.matrix([])
 
-	# LOAD DATA SHOULD TAKE IN A SET?? FOR CASCADE
-	def loadData(self,positiveSet=[],negativeSet=[]):
-		self.data = np.vstack( [ positiveSet , negativeSet ] )
-		npos,mpos = np.shape(positiveSet)
-		nneg,mneg = np.shape(negativeSet)
+	def get_frame_vector(self, video_frame, flatten=True):
+		im = Image.open(video_frame)
 
-		self.labels = ([1 for x in range(npos)])
-		self.labels.extend([-1 for x in range(nneg)])
+		# convert to grayscale
+		im_gray = im.convert('L')
+
+		# convert to a matrix
+		im_matrix = np.matrix(im_gray)
+		if flatten == True:
+			return im_matrix.flatten('F')
+		else:
+			return im_matrix
+
+	# LOAD DATA SHOULD TAKE IN A SET?? FOR CASCADE
+	def loadData(self,positiveDir="testimgspos/",negativeDir="testimgsneg/"):
+
+		positiveSet = []
+		negativeSet = []
+
+		positiveImages = os.listdir(os.getcwd() + "/" + positiveDir)
+		# # get rid of the .DS_Store file
+		# images.pop(0)
+
+		# add each vector to the list
+		for i in positiveImages:
+			positiveSet.append(self.get_frame_vector(positiveDir + i,False))
+
+		negativeImages = os.listdir(os.getcwd() + "/" + negativeDir)
+		# # get rid of the .DS_Store file
+		# images.pop(0)
+
+		# add each vector to the list
+		for i in negativeImages:
+			negativeSet.append(self.get_frame_vector(negativeDir + i,False))
+
+		bigSet = []
+		bigSet.extend(positiveSet)
+		bigSet.extend(negativeSet)
+
+		self.data = bigSet
+
+		self.labels = ([1 for x in range(len(positiveSet))])
+		self.labels.extend([-1 for x in range(len(negativeSet))])
 
 	def guessClass(self,data,dim,threshold,inequality):
 
@@ -39,9 +75,9 @@ class adaBoost:
 	def trainClassifier(self,data,labels,weights,steps):
 
 		# setup
-		dataMatrix = np.matrix(data)
+		dataMatrix = self.data
 		labelMatrix = np.matrix(labels).T
-		n,m = np.shape(data)
+		n,m,o = np.shape(data)
 		bestClassifier = {}
 		bestClassGuess = np.zeros((n,1))
 		minError = float('inf')
@@ -85,7 +121,7 @@ class adaBoost:
 
 	def boost(self,maxFeatures):
 		weakClassGuessers = []
-		n,m = np.shape(self.data)
+		n,m,o = np.shape(self.data)
 
 		# setup weight vector
 		weights = np.ones((n,1))
@@ -248,6 +284,6 @@ class cascade:
 				self.negativeSet = [k for (k,v) in negativeSetGuesses.iteritems() if v == 1]
 
 adabooster = adaBoost()
-adabooster.loadData( [ [12,3] , [10,4] , [2,3.5] ] , [ [2,10] , [3,11] , [14,12] ] )
+adabooster.loadData()
 adabooster.boost(30)
 print adabooster.classify([-3,1])
