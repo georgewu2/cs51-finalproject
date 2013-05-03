@@ -6,10 +6,12 @@ from training import Faces
 
 class Features:
 
-	def __init__(self):
+	def __init__(self, img):
 
 		# will be an array of all possible features for that image
 		self.f = []
+
+		# array of all features (the type and the coordinates of the corners)
 		self.feature_table = [None for x in xrange(673680)]
 		self.origin_x = 0
 		self.origin_y = 0
@@ -18,15 +20,17 @@ class Features:
 		self.patch_std = 1.0
 		self.faces = Faces()
 
-		self.pic = Integrate("face_1.jpg")
+		self.pic = Integrate(img) #for testing Integrate("face_1.jpg") 
 		self.img = self.pic.integral_image()
+
+		set_ROI(self.img, 0, 0, min(len(img[0]), img.size/len(img[0]))) 
 
 		self.init_helper()
 
 	def init_helper(self):
 		min_patch_side = 24 # smallest block size 
 
-		ind = [x for x in xrange(134736)]
+		ind = [x for x in xrange(134736)] 
 
 		i = 0
 
@@ -121,10 +125,10 @@ class Features:
 		patch_scale = (float(w))/(float(min_patch_side))
 
 		# std^2 = mean(x^2) + mean(x)^2
-		mean = integral_image.findIntegral(x,y,w,w)
+		mean = Integrate.findIntegral(x,y,w,w)
 		mean /= (float((w*w)))
 
-		meanSqr = integral_image.findIntegral(x,y,w,w)
+		meanSqr = Integrate.findIntegral(x,y,w,w)
 		meanSqr /= (float((w*w)))
 
 		if (meanSqr<=0):
@@ -139,8 +143,8 @@ class Features:
 	  ++++ h
 	"""
 	def typeI(self, integral_image, x, y, w, h):
-		sumU = integral_image.findIntegral(x,y,w,h)
-		sumD = integral_image.findIntegral(x,y+h,w,h)
+		sumU = Integrate.findIntegral(x,y,w,h)
+		sumD = Integrate.findIntegral(x,y+h,w,h)
 		# print int(sumD),int(sumU)
 		if sumD > 100000 or sumU > 100000:
 			print sumD,sumU
@@ -155,8 +159,8 @@ class Features:
 	"""
 	def typeII(self, integral_image, x, y, w, h):
 
-		sumL = integral_image.findIntegral(x,y,w,h)
-		sumR = integral_image.findIntegral(x+w,y,w,h)
+		sumL = Integrate.findIntegral(x,y,w,h)
+		sumR = Integrate.findIntegral(x+w,y,w,h)
 
 		return (int(sumL)-int(sumR))/self.patch_std
 	
@@ -169,9 +173,9 @@ class Features:
 	"""
 	def typeIII(self, integral_image, x, y, w, h):
 
-		sumL = integral_image.findIntegral(x,y,w,h)
-		sumC = integral_image.findIntegral(x+w,y,w,h)
-		sumR = integral_image.findIntegral(x+2*w,y,w,h)
+		sumL = Integrate.findIntegral(x,y,w,h)
+		sumC = Integrate.findIntegral(x+w,y,w,h)
+		sumR = Integrate.findIntegral(x+2*w,y,w,h)
 		# We have to account for the mean, since there are more (+) than (-).
 		return (int(sumL)-int(sumC)+int(sumR)-(self.patch_mean*w*h)) / self.patch_std
 	
@@ -186,10 +190,10 @@ class Features:
 	  ----++++ v
 	"""
 	def typeIV(self, integral_image, x, y, w, h):
-		sumLU = integral_image.findIntegral(x,y,w,h)
-		sumRU = integral_image.findIntegral(x+w,y,w,h)
-		sumLD = integral_image.findIntegral(x,y+h,w,h)
-		sumRD = integral_image.findIntegral(x+w,y+h,w,h)
+		sumLU = Integrate.findIntegral(x,y,w,h)
+		sumRU = Integrate.findIntegral(x+w,y,w,h)
+		sumLD = Integrate.findIntegral(x,y+h,w,h)
+		sumRD = Integrate.findIntegral(x+w,y+h,w,h)
 		return (-int(sumLD)+int(sumRD)+int(sumLU)-int(sumRU)) / self.patch_std
 		
 featuretest = Features()
