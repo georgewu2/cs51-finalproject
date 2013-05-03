@@ -16,13 +16,13 @@ class perceptron:
 	"""
 	def __init__(self, imgs, imglabels):	
 	# perceptron initialization
-		self.classws = [0]*134736
+		self.classws = [-1]*134736
 
 		# weights for classifying are randomly initialized to -1 or 1
-		for w in self.classws:
-			w = random.randint(0,1)
-			if w == 0:
-				w = -1
+		for x in xrange(0, len(self.classws)):
+			self.classws[x]= random.randint(0,1)
+			if self.classws[x] == 0:
+				self.classws[x] = -1
 
 		# alpha value - to test for 0.1, 0.5, 11, 10
 		self.learningRate = 0.1
@@ -33,7 +33,7 @@ class perceptron:
 		# self.imgswithvals = [] # potential guesses for each image
 
 		# set of weights with the default weight of 1 to offset data
-		self.w = [1]
+		self.w = [-1]
 		
 		
 		"""
@@ -57,6 +57,8 @@ class perceptron:
 	weights : list of same size as feats that contains random -1 or 1 weight to different features
 	"""
 	def classify (self, feats, weights):
+
+		# $$print "rows and stuff", feats[0], weights[0]
 		return np.dot(feats, weights)	
 
 
@@ -67,9 +69,11 @@ class perceptron:
 	"""
 	def response(self,img): 
   		pic = Features(img) 
-
+  		# print "pic f top is ", pic.f[0] #$$
+  		#print "self.classws is ", self.classws #$$
   		# classifies image and returns "stupid" guess
-  		y = self.classify(pic.f, self.classws)   
+  		y = self.classify(pic.f, self.classws)
+  		# $$ print "y is ", y   
   		if y >= 0:
    			return 1
   		else:
@@ -87,6 +91,7 @@ class perceptron:
 	  
 	  	lastw = self.w[len(self.w)-1]
 		self.w.append(lastw + self.learningRate*iterError*x)
+		# print "last w is ", self.w[len(self.w)-1] #$$
 
 
 	""" 
@@ -99,14 +104,17 @@ class perceptron:
 		while not learned:
 			globalError = 0.00
 			for i in range (0,len(imgs)): # for each sample
+			    print i # $$
 			    img = imgs [i]
-			    r = self.response(img)    
+			    r = self.response(img) 
+			    # $$ print "r is ", r
 			    if self.labels[i] != r: # if we have a wrong response
 				    iterError = self.labels[i] - r # desired response - actual response
 				    self.updateWeights(self.labels[i],iterError)
 				    globalError += abs(iterError)
 			
-			if globalError <= 0.001 : # stop criteria
+			print "global error is ", globalError	#$$	
+			if globalError <= 1 : # stop criteria # $$$ CHANGE THIS BACK
 			   	learned = True # stop learning
 
 		return self.w[len(self.w)-1]
@@ -131,7 +139,7 @@ class perceptron:
 		negativeimages.pop(0)
 		posimgs = []
 		negimgs = []
-		print positiveimages
+		
 		for i in positiveimages:
 			im = Image.open("positive/" + i)
 			im_gray = im.convert('L')
@@ -148,11 +156,28 @@ class perceptron:
 			labels.append (1)
 
 		for x in xrange(0, len(negimgs)):
-			labels.append (0)
+			labels.append (-1)
 
 		totalimgs = posimgs + negimgs
 		newp = perceptron(totalimgs, labels)
+
+		imm = Image.open("img0000.jpg")
+		im_gray = imm.convert('L')
+		im_matrix = np.matrix(im_gray)
+
+		imm2 = Image.open("img0001.jpg")
+		im_gray2 = imm2.convert('L')
+		im_matrix2 = np.matrix(im_gray2)
+
 		print newp.threshold
+		print "the guess for img0000 is "
+		print newp.guess(im_matrix)
+
+		print "the guess for img0001 is "
+		print newp.guess(im_matrix2)
+
+
+
 
 
 dummynew = perceptron([], [])

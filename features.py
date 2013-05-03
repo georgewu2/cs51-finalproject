@@ -13,14 +13,14 @@ class Features:
 		self.f = []
 
 		# array of all features (the type and the coordinates of the corners)
-		self.feature_table = [None for x in xrange(673680)]
+		self.feature_table = [None for x in xrange(8628)]
 		self.origin_x = 0
 		self.origin_y = 0
 		self.patch_scale = 1.0
 		self.patch_mean = 1.0
 		self.patch_std = 1.0
 		self.faces = Faces()
-		self.min_patch_side = 24 # smallest block size 
+		self.min_patch_side = 12 # smallest block size 
 
 
 		self.pic = Integrate(img)
@@ -33,7 +33,7 @@ class Features:
 
 	def init_helper(self):
 
-		ind = [x for x in xrange(134736)] 
+		ind = [x for x in xrange(43140)] 
 
 		i = 0
 
