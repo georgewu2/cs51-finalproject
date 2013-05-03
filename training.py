@@ -36,20 +36,19 @@ class Faces:
 
 		# add each vector to the list
 		for i in images:
-			self.listfaces.append(self.get_frame_vector("picturesofjames/" + i))
+			self.listfaces.append(self.get_frame_vector("picturesofjames/" + i).T)
 
 		# compress vector list into one matrix
-		self.faces = np.concatenate(self.listfaces)
+		self.faces = np.concatenate(self.listfaces, axis = 1)
 
 	def mean_face(self):
-		# np.mean IS SO SLOW WHYYYYYYY
-		self.meanface = np.mean(self.faces, axis = 0)
+		self.meanface = np.mean(self.faces, axis = 1)
 
 	def difference_faces(self):
 		self.differencefaces = self.faces - self.meanface
 
 	def covariance(self):
-		self.covmatrix = np.cov(self.differencefaces)
+		self.covmatrix = self.differencefaces.T * self.differencefaces
 
 	def get_eigenfaces(self):
 
@@ -61,34 +60,36 @@ class Faces:
 
 		# sort eigenvalues and eigenvectors according to most significant eigenvalues
 		eigenvalues = eigenvalues[order]
-		eigenvectors = eigenvectors[order]
-		# for vector in eigenvectors:
-		# 	length = linalg.norm(vector)
-		# 	vector = vector / length
-		# 	# print vector
-		print eigenvectors
-		self.eigenfaces = eigenvectors * self.differencefaces
+		eigenvectors = eigenvectors[:,order]
+
+		# get only the 10 most significant eigenvectors
+		eigenvectors = eigenvectors[:,:10]
+
+		# create the eigenfaces
+		eigenfaces = self.differencefaces * eigenvectors
+		# normalize each eigenface
+
+		# get the tranpose
+		temp = eigenfaces.T
+		vectors = []
+		for face in temp:
+			
+			# get the length of the row and divide each row by it
+			length = linalg.norm(face)
+			nface = face / length
+			vectors.append(nface)
+
+		# get the transpose of the normalized eigenfaces
+		neigenfaces = np.concatenate(vectors).T
+		self.eigenfaces = neigenfaces
 
 	def get_weights(self):
-		# print self.eigenfaces
-		# print self.faces
-		self.weights = self.faces * self.eigenfaces.T
+		self.weights = self.eigenfaces.T * self.faces
 
 	def main2(self):
 		self.get_face_images()
-		print self.faces
 		self.mean_face()
-		print self.meanface
 		self.difference_faces()
-		print self.differencefaces
 		self.covariance()
-		print self.covmatrix
 		self.get_eigenfaces()
-		print self.eigenfaces
 		self.get_weights()
-		print self.weights
-
-test = Faces()
-test.main2()
-# a = test.get_frame("stuff.jpg")
-# print test.matrix_to_vector(a)
