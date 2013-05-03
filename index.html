@@ -7,22 +7,25 @@
       html { height: 100% }
       body { height: 100%; margin: 0; padding: 0 }
     </style>
+    <link rel="stylesheet" type="text/css" href="static/style.css">
     <script type="text/javascript" src="static/jquery-1.8.3.min.js"></script>
-    <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAh-esFf1xCNtIWE6FyWpqPXA2fMn-2tBk&sensor=false"></script>
     <script type="text/javascript" src="static/settings.js"></script>
     <script type="text/javascript" src="static/client.js"></script>
   </head>
   <body>
-    <div>
+    <div style="text-align:center;">
       <div>
-        <canvas width="640" id="canvas" height="480"></canvas>
+        <canvas class="circle" width="250" id="canvas" height="250"></canvas>
   	<p><button id="capture-button">Capture Face</button></p>
 	<p><button id="capture-face">Capture Smile</button></p>
+        <p><button id="capture-result">Get Results</button></p>
+	<p><button id="capture-stream">Get Stream</button></p>
+	<p><button id="capture-snapshot">Snapshot</button></p>
         <input type="button" value="Restart" onclick="location.reload()">
       </div>
       <div>
         <img id="target" style="display: inline;"/>
-        <video id="live" width="320" height="240" autoplay style="visibility: hidden; display: inline;"></video>
+        <video id="live" width="250" height="250" autoplay style="text-align:center; visibility: hidden; display: inline;"></video>
         <div>
         </div>
       </div>
