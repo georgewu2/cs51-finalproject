@@ -30,8 +30,6 @@ class perceptron:
 		self.images = imgs # dataset of images to train on
 		self.labels = imglabels # labels of images in dataset of whether there exists a face
 
-
-		
 		self.imgswithvals = [] # potential guesses for each image
 
 		# set of weights with the default weight of 1 to offset data
@@ -41,8 +39,8 @@ class perceptron:
 		# for each image passed into dataset, get the feature value for each image
 		# not sure i have to train everything before i do it
 		for img in imgs:
-			pic = Feature(img)
-			imgswithvals.append(classify(pic.f, self.classws)) 
+			pic = Features(img)
+			self.imgswithvals.append(self.classify(pic.f, self.classws)) 
 		
 
 		# after training, assigns threshold value for guessing
@@ -72,7 +70,7 @@ class perceptron:
   		# print "self.classws is ", self.classws #$$
   		
   		# classifies image and returns "stupid" guess
-  		y = imgsvals[index] # self.classify(pic.f, self.classws)
+  		y = self.imgswithvals[index] # self.classify(pic.f, self.classws)
   		print "y is ", y   #$$
   		if y >= 0:
    			return 1
@@ -112,8 +110,8 @@ class perceptron:
 				    iterError = self.labels[i] - r # desired response - actual response
 				    self.updateWeights(self.labels[i],iterError)
 				    globalError += abs(iterError)
-				    print "global error is ", globalError	#$$	
-			
+				    
+			print "global error is ------------------------------", globalError	#$$	
 			if globalError <= 10 : # stop criteria # $$$ CHANGE THIS BACK
 			   	learned = True # stop learning
 
@@ -123,8 +121,8 @@ class perceptron:
 	# take in the newimage return the guess
 	def guess (self, image): 
 		pic = Features(image)
-		guess = self.classify (pic.f, self.w)
-		if(guess >= threshold):
+		guess = self.classify (pic.f, self.classw)
+		if(guess >= self.threshold):
 			return 1
 		else: 
 			return -1
