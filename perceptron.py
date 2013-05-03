@@ -82,9 +82,7 @@ class perceptron:
 	def updateWeights(self,x,iterError):
 	  
 	  	lastw = self.w[len(self.w)-1]
-		self.w.append(lastw + self.learningRate*iterError*x)
-
-
+		self.w.append(lastw + self.learningRate*iterError*x)s
 
 
 	""" 
