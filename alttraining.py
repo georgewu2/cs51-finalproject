@@ -93,3 +93,4 @@ class Faces:
 		self.covariance()
 		self.get_eigenfaces()
 		self.get_weights()
+		

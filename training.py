@@ -27,9 +27,9 @@ class Faces:
 		else:
 			return im_matrix
 
-	def get_face_images(self):
+	def get_face_images(self, path):
 		# get all files of image directory
-		images = os.listdir(os.getcwd() + "/data/analysis")
+		images = os.listdir(os.getcwd() + path)
 		
 		# get rid of the .DS_Store file
 		images.pop(0)
@@ -87,7 +87,7 @@ class Faces:
 		self.weights = self.eigenfaces.T * self.faces
 
 	def train(self):
-		self.get_face_images()
+		self.get_face_images("/data/analysis")
 		self.mean_face()
 		self.difference_faces()
 		self.covariance()
