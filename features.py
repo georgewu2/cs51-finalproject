@@ -1,5 +1,5 @@
 import numpy
-import scipy
+# import scipy
 import Image
 import math
 from integral_image import Integrate
