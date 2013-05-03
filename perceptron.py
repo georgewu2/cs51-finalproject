@@ -1,5 +1,6 @@
 from feature import Features
 import numpy
+import Image
 
 
 class perceptron:
@@ -116,3 +117,11 @@ class perceptron:
 			return 1
 		else: 
 			return -1
+
+
+
+im = Image.open("face_1.jpg")
+im_gray = im.convert('L')
+im_matrix = np.matrix(im_gray)
+newp = Perceptron([im_matrix], [1])
+print newp.threshold
