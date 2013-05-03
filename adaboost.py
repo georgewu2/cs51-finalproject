@@ -101,7 +101,15 @@ class adaBoost:
 
 		# setup
 		labelMatrix = np.matrix(labels).T
-		n,m,o = np.shape(data)
+		try:
+			n,m,o = np.shape(data)
+		except ValueError:
+			try: 
+				n,m = np.shape(data)
+			except:
+				n = len(data)
+
+
 		bestClassifier = {}
 		bestClassGuess = np.zeros((n,1))
 		minError = float('inf')
@@ -155,7 +163,14 @@ class adaBoost:
 
 	def boost(self,maxFeatures):
 		weakClassGuessers = []
-		n,m,o = np.shape(self.data)
+
+		try:
+			n,m,o = np.shape(self.data)
+		except ValueError:
+			try: 
+				n,m = np.shape(self.data)
+			except ValueError:
+				n = len(self.data)
 
 		# setup weight vector
 		weights = np.ones((n,1))
@@ -219,7 +234,7 @@ class adaBoost:
 			featuresMatrix = features.f
 			n = len(data)
 			print "LENGTH",n
-			aggregateClassGuess = np.zeros((n,1))
+			aggregateClassGuess = 0
 
 			# for every classifier we train, use it to classguess and then scale by
 			# alpha and add to aggregate guess
@@ -361,8 +376,20 @@ class cascade:
 
 # cascader = cascade()
 # cascader.trainCascadedClassifier(.1,.9,.1)
+
 adabooster = adaBoost()
 adabooster.loadData()
 adabooster.boost(10)
-print adabooster.classify([get_frame_vector("testpos.jpg",False)])
-print adabooster.classify([get_frame_vector("testneg.jpg",False)])
+
+positiveImages = os.listdir(os.getcwd() + "/testconfirmedpos")
+positiveImages.pop(0)
+
+positiveSet = [v for k,v in (adabooster.classify(map(lambda x : get_frame_vector("testconfirmedpos/" + x,False),positiveImages))).items()]
+
+negativeImages = os.listdir(os.getcwd() + "/testconfirmedneg")
+negativeImages.pop(0)
+
+negativeSet = [v for k,v in (adabooster.classify(map(lambda x : get_frame_vector("testconfirmedneg/" + x,False),negativeImages))).items()]
+
+print "POSITIVE",positiveSet
+print "NEGATIVE",negativeSet
