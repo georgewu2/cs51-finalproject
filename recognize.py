@@ -31,10 +31,17 @@ class Eigenfaces:
 				print "smiling"
 
 	def classify (self, video_frame):
+		self.distances = []
 		normalized = self.normalize(video_frame)
 		projection = self.project(normalized)
 		self.findface(projection)
+		
+
 
 
 test = Eigenfaces()
+images = os.listdir(os.getcwd()+"/picturesofjames")
+images.pop(0)
+for i in images:
+	test.classify("picturesofjames/" +i)
 test.classify("picturesofjames/img0004.jpg")
