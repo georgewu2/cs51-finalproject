@@ -233,25 +233,23 @@ class adaBoost:
 
 		print self.classifierArray
 
-	def classify(self,data):
-		classifiedDict = {}
-		for i in data:
-			features = Features(i)
-			featuresMatrix = features.f
-			n = len(data)
-			print "LENGTH",n
-			aggregateClassGuess = 0
+	def classify(self,i):
+		features = Features(i)
+		featuresMatrix = features.f
+		aggregateClassGuess = 0
 
-			# for every classifier we train, use it to classguess and then scale by
-			# alpha and add to aggregate guess
-			for classifier in range (0,len(self.classifierArray)):
-				classGuess = self.guessClass(featuresMatrix,self.classifierArray[classifier]['feature'],self.classifierArray[classifier]['threshold'],self.classifierArray[classifier]['inequality'])
-				print "CLASS GUESS",classGuess
-				aggregateClassGuess = aggregateClassGuess + (self.classifierArray[classifier]['alpha'] * classGuess)
-				print "AGG CLASS GUESS", aggregateClassGuess
-			
-			classifiedDict[i] = np.sign(aggregateClassGuess)
-		return classifiedDict
+		# for every classifier we train, use it to classguess and then scale by
+		# alpha and add to aggregate guess
+		for classifier in range (0,len(self.classifierArray)):
+			classGuess = self.guessClass(featuresMatrix,self.classifierArray[classifier]['feature'],self.classifierArray[classifier]['threshold'],self.classifierArray[classifier]['inequality'])
+			print "CLASS GUESS",classGuess
+			aggregateClassGuess = aggregateClassGuess + (self.classifierArray[classifier]['alpha'] * classGuess)
+			print "AGG CLASS GUESS", aggregateClassGuess
+		
+		if np.sign(aggregateClassGuess) == 1:
+			return True
+		else: 
+			return False
 
 class cascade:
 
