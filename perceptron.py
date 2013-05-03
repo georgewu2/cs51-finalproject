@@ -1,6 +1,7 @@
 from features import Features
-import numpy
+import numpy as np
 import Image
+import random
 
 
 class perceptron:
@@ -44,7 +45,7 @@ class perceptron:
 		"""
 
 		# after training, assigns threshold value for guessing
-		self.threshold = train(self.images)
+		self.threshold = self.train(self.images)
 
 
 	"""
@@ -66,7 +67,7 @@ class perceptron:
   		pic = Features(img) 
 
   		# classifies image and returns "stupid" guess
-  		y = classify(pic.f, self.classws)   
+  		y = self.classify(pic.f, self.classws)   
   		if y >= 0:
    			return 1
   		else:
@@ -112,16 +113,14 @@ class perceptron:
 	# take in the newimage return the guess
 	def guess (self, image): 
 		pic = Feature(image)
-		guess = classify (pic.f, self.w)
+		guess = self.classify (pic.f, self.w)
 		if(guess >= threshold):
 			return 1
 		else: 
 			return -1
 
-
-
-im = Image.open("face_1.jpg")
+im = Image.open("img0001.jpg")
 im_gray = im.convert('L')
 im_matrix = np.matrix(im_gray)
-newp = Perceptron([im_matrix], [1])
+newp = perceptron([im_matrix], [1])
 print newp.threshold

@@ -5,6 +5,19 @@ import Image
 import os
 from features import Features
 
+def get_frame_vector(self, video_frame, flatten=True):
+	im = Image.open(video_frame)
+
+	# convert to grayscale
+	im_gray = im.convert('L')
+
+	# convert to a matrix
+	im_matrix = np.matrix(im_gray)
+	if flatten == True:
+		return im_matrix.flatten('F')
+	else:
+		return im_matrix
+
 class adaBoost:
 
 	def __init__(self):
@@ -12,21 +25,6 @@ class adaBoost:
 		self.labels 		 = np.matrix([])
 		self.classifierArray = np.matrix([])
 		self.featuresMatrix = np.zeros((1,134736))
-
-
-
-	def get_frame_vector(self, video_frame, flatten=True):
-		im = Image.open(video_frame)
-
-		# convert to grayscale
-		im_gray = im.convert('L')
-
-		# convert to a matrix
-		im_matrix = np.matrix(im_gray)
-		if flatten == True:
-			return im_matrix.flatten('F')
-		else:
-			return im_matrix
 
 	def loadData(self,positiveDir="testimgspos/",negativeDir="testimgsneg/"):
 
@@ -39,7 +37,7 @@ class adaBoost:
 
 		# add each vector to the list
 		for i in positiveImages:
-			positiveSet.append(self.get_frame_vector(positiveDir + i,False))
+			positiveSet.append(get_frame_vector(positiveDir + i,False))
 
 		negativeImages = os.listdir(os.getcwd() + "/" + negativeDir)
 		# # get rid of the .DS_Store file
@@ -47,7 +45,7 @@ class adaBoost:
 
 		# add each vector to the list
 		for i in negativeImages:
-			negativeSet.append(self.get_frame_vector(negativeDir + i,False))
+			negativeSet.append(get_frame_vector(negativeDir + i,False))
 
 		bigSet = []
 		bigSet.extend(positiveSet)
@@ -221,11 +219,31 @@ class cascade:
 		self.negativeSet  	   = self.loadNegatives()
 		self.cascadedClassifier = {}
 
-	def loadPositives(self):
-		0# load images that have faces
+	def loadPositives(self,positiveDir="testimgspos/"):
+		positiveSet = []
 
-	def loadNegatives(self):
-		0# load non-face images
+		positiveImages = os.listdir(os.getcwd() + "/" + positiveDir)
+		# # get rid of the .DS_Store file
+		images.pop(0)
+
+		# add each vector to the list
+		for i in positiveImages:
+			positiveSet.append(get_frame_vector(positiveDir + i,False))
+
+		return positiveSet
+
+	def loadNegatives(self,negativeDir="testimgsneg/"):
+		negativeSet = []
+
+		negativeImages = os.listdir(os.getcwd() + "/" + negativeDir)
+		# # get rid of the .DS_Store file
+		images.pop(0)
+
+		# add each vector to the list
+		for i in negativeImages:
+			negativeImages.append(get_frame_vector(negativeDir + i,False))
+
+		return negativeSet
 
 	def cascadedClassifierGuess(self,data):
 		classifiedDict = {}
@@ -256,9 +274,12 @@ class cascade:
 		return classifiedDict
 
 	def adjustThreshold(self,classifier):
-		classifier['threshold'] -= .05
+		classifier['threshold'] -= 1
 
 	def trainCascadedClassifier(self,f,d,Ftarget):
+
+		adabooster = adaBoost()
+		adabooster.loadData()
 
 		# while your false positive rate is too high
 		while self.falsePositiveRate > Ftarget:
@@ -266,14 +287,12 @@ class cascade:
 			n = 0
 			newFalsePositiveRate = self.falsePositiveRate
 
-			adabooster = adaBoost()
 
 			# we're trying to get our false positive rate down
 			while newFalsePositiveRate > (f * self.falsePositiveRate):
 				n += 1
 
 				# make a new adabooster and boost to get a classifier with n features
-				adabooster.loadData(self.positiveSet,self.negativeSet)
 				adabooster.boost(n)
 
 				# add our new classifier to our cascadedClassifier
@@ -312,6 +331,5 @@ class cascade:
 				negativeSetGuesses = self.cascadedClassifierGuess(self.negativeSet)
 				self.negativeSet = [k for (k,v) in negativeSetGuesses.iteritems() if v == 1]
 
-adabooster = adaBoost()
-adabooster.loadData()
-adabooster.boost(30)
+cascader = cascade()
+cascader.trainCascadedClassifier(.1,.9,.1)
