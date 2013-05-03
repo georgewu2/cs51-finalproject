@@ -3,6 +3,7 @@ import math
 from collections import Counter
 import Image
 import os
+from features import Features
 
 class adaBoost:
 
@@ -64,61 +65,71 @@ class adaBoost:
 		if inequality == '<=':
 			for img in range(0,n):
 				integralImageWithFeatures = Features(data[img])
-				if sum(integralImageWithFeatures.f) <= threshold
+				if sum(integralImageWithFeatures.f) <= threshold:
 					classed[img] = -1
 
 		else:
 				integralImageWithFeatures = Features(data[img])
-				if sum(integralImageWithFeatures.f) > threshold
+				if sum(integralImageWithFeatures.f) > threshold:
 					classed[img] = -1
 		return classed
 
 	def trainClassifier(self,data,labels,weights,steps):
 
 		# setup
-		dataMatrix = self.data
+		featuresMatrix = np.matrix([])
 		labelMatrix = np.matrix(labels).T
 		n,m,o = np.shape(data)
 		bestClassifier = {}
 		bestClassGuess = np.zeros((n,1))
 		minError = float('inf')
 
-		# the work
-		for feature in range(0,len()):
-			# find min and max of x or y coordinates
-			rangeMin = dataMatrix[:,dim].min()
-			rangeMax = dataMatrix[:,dim].max()
-			stepSize = (rangeMax - rangeMin) / float(steps)
 
-			# for every little subdivision of the range
-			for j in range(-1,steps + 1):
-				for inequality in ['<=','>']:
+		# MAKE A GIANT MATRIX WITH ROWS BEING INTEGRALIMAGEFEATURES.F 
+		# TAKE EACH COLUMN PER FEATURE!!! YEAH!!! SO YOU CAN DO MIN AND MAX
+		# ON EACH COLUMN AND DO THE SAME THING WE'VE BEEN DOING!
+		# FUCK YEAH
 
-					# set the threshold value by incrementing one step over minrange
-					# and classify based on the threshold
-					threshold = (rangeMin + (j * stepSize))
-					classGuess = self.guessClass(dataMatrix,dim,threshold,inequality)
+		for img in self.data:
+			integralImageWithFeatures = Features(img)
+			featuresMatrix = np.vstack([featuresMatrix,integralImageWithFeatures.f])
 
-					# find the error in predictedClasses
-					errorArray = np.ones((n,1))
+		# # the work
+		# for feature in range(0,len()):
+		# 	# find min and max of x or y coordinates
+		# 	rangeMin = dataMatrix[:,dim].min()
+		# 	rangeMax = dataMatrix[:,dim].max()
+		# 	stepSize = (rangeMax - rangeMin) / float(steps)
 
-					# if wrong prediction, set to 0
-					for point in range(0,n):
-						if classGuess[point] == labelMatrix[point]:
-							errorArray[point] = 0
+		# 	# for every little subdivision of the range
+		# 	for j in range(-1,steps + 1):
+		# 		for inequality in ['<=','>']:
 
-					weightedError = np.matrix(weights).T * np.matrix(errorArray)
+		# 			# set the threshold value by incrementing one step over minrange
+		# 			# and classify based on the threshold
+		# 			threshold = (rangeMin + (j * stepSize))
+		# 			classGuess = self.guessClass(dataMatrix,dim,threshold,inequality)
 
-					# if weighted error is smallest, then put all our current 
-					# stuff in a dictionary
-					if weightedError < minError:
-						minError = weightedError
-						bestClassGuess = classGuess.copy()
-						bestClassifier['dim'] = dim
-						bestClassifier['threshold'] = threshold
-						bestClassifier['inequality'] = inequality
+		# 			# find the error in predictedClasses
+		# 			errorArray = np.ones((n,1))
 
-		return bestClassifier,minError,bestClassGuess
+		# 			# if wrong prediction, set to 0
+		# 			for point in range(0,n):
+		# 				if classGuess[point] == labelMatrix[point]:
+		# 					errorArray[point] = 0
+
+		# 			weightedError = np.matrix(weights).T * np.matrix(errorArray)
+
+		# 			# if weighted error is smallest, then put all our current 
+		# 			# stuff in a dictionary
+		# 			if weightedError < minError:
+		# 				minError = weightedError
+		# 				bestClassGuess = classGuess.copy()
+		# 				bestClassifier['dim'] = dim
+		# 				bestClassifier['threshold'] = threshold
+		# 				bestClassifier['inequality'] = inequality
+
+		# return bestClassifier,minError,bestClassGuess
 
 	def boost(self,maxFeatures):
 		weakClassGuessers = []

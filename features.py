@@ -191,7 +191,3 @@ class Features:
 		sumLD = integral_image.findIntegral(x,y+h,w,h)
 		sumRD = integral_image.findIntegral(x+w,y+h,w,h)
 		return (-int(sumLD)+int(sumRD)+int(sumLU)-int(sumRU)) / self.patch_std
-		
-featuretest = Features("face1.jpg")
-
-print featuretest.f
