@@ -133,7 +133,6 @@ class adaBoost:
 						bestClassifier['feature'] = feature
 						bestClassifier['threshold'] = threshold
 						bestClassifier['inequality'] = inequality
-						print "BESTCLASSIFIER", bestClassifier
 
 		return bestClassifier,minError,bestClassGuess
 
@@ -162,7 +161,7 @@ class adaBoost:
 			
 			bestClassifier['alpha'] = alpha
 
-			print "ALPHA", alpha
+			# print "ALPHA", alpha
 
 			# add classifier to weakClassGuess
 			weakClassGuessers.append(bestClassifier)
@@ -170,12 +169,12 @@ class adaBoost:
 			# calculate new weights
 			exponent = np.multiply(1 * alpha * np.matrix(self.labels), classGuess)
 
-			print "EXPONENT", exponent
+			# print "EXPONENT", exponent
 
 			weights = np.multiply(weights,np.exp(exponent.T))
 			weights = weights * (1 / weights.sum())
 
-			print "WEIGHTS", weights
+			# print "WEIGHTS", weights
 
 			# update aggregateClassGuess
 			aggregateClassGuess = aggregateClassGuess + np.matrix((-1 * alpha * classGuess)).T
@@ -186,13 +185,15 @@ class adaBoost:
 			errorRate = aggregateErrors.sum() / n
 			# print aggregateErrors
 
-			print "ERRORRATE", errorRate
+			# print "ERRORRATE", errorRate
 
 			if errorRate == 0.0: 
 				print "NOERROR"
 				break
 
 		self.classifierArray = weakClassGuessers
+
+		print self.classifierArray
 
 	def classify(self,data):
 		classifiedDict = {}

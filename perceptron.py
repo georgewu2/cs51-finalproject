@@ -1,4 +1,4 @@
-from feature import Features
+from features import Features
 import numpy
 
 
