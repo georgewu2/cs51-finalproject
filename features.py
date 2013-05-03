@@ -1,10 +1,21 @@
-import numpy
-# import scipy
+import numpy as np
+import scipy
 import Image
 import math
 from integral_image import Integrate
 from training import Faces
+def get_frame_vector(video_frame, flatten=True):
+	im = Image.open(video_frame)
 
+	# convert to grayscale
+	im_gray = im.convert('L')
+
+	# convert to a matrix
+	im_matrix = np.matrix(im_gray)
+	if flatten == True:
+		return im_matrix.flatten('F')
+	else:
+		return im_matrix
 class Features:
 
 	def __init__(self,img):
@@ -13,7 +24,8 @@ class Features:
 		self.f = []
 
 		# array of all features (the type and the coordinates of the corners)
-		self.feature_table = [None for x in xrange(8628)]
+
+		self.feature_table = [None for x in xrange(43140)]
 		self.origin_x = 0
 		self.origin_y = 0
 		self.patch_scale = 1.0
@@ -22,12 +34,9 @@ class Features:
 		self.faces = Faces()
 		self.min_patch_side = 12 # smallest block size 
 
-
 		self.pic = Integrate(img)
 
 		self.img = self.pic.integral_image()
-
-		self.set_ROI(self.pic, 0, 0, min(len(img[0]), img.size/len(img[0]))) 
 
 		self.init_helper()
 
@@ -85,6 +94,7 @@ class Features:
 						self.feature_table[i+3] = w
 						self.feature_table[i+4] = h
 						i+=5
+
 		self.get_features(ind, self.f)
 
 	# takes in array ind and populates array f with features for that image
@@ -198,3 +208,6 @@ class Features:
 		sumLD = integral_image.findIntegral(x,y+h,w,h)
 		sumRD = integral_image.findIntegral(x+w,y+h,w,h)
 		return (-int(sumLD)+int(sumRD)+int(sumLU)-int(sumRU)) / self.patch_std
+
+# features = Features(get_frame_vector("testpos.jpg",False))
+# print features.f
