@@ -86,7 +86,7 @@ class Faces:
 	def get_weights(self):
 		self.weights = self.eigenfaces.T * self.faces
 
-	def main2(self):
+	def train(self):
 		self.get_face_images()
 		self.mean_face()
 		self.difference_faces()

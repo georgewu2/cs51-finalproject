@@ -1,19 +1,19 @@
 import numpy as np
 import os
-from alttraining import Faces
+from training import Faces
 
 class Eigenfaces:
 
 	def __init__(self):
 		self.faces = Faces()
-		self.faces.main2()
+		self.faces.train()
 		self.distances = []
 
 	def normalize (self, video_frame):
 		im_matrix = self.faces.get_frame_vector(video_frame).T
 		return im_matrix - self.faces.meanface
 
-	def projection (self, face):
+	def project (self, face):
 		return self.faces.eigenfaces.T * face
 
 	def findface(self, a):
@@ -27,23 +27,14 @@ class Eigenfaces:
 			# print self.distances
 			if index < 50:
 				print "not smiling"
-			elif index < 100:
-				print "smiling"
-			elif index < 150:
-				print "George's face"
 			else:
-				print "JN's face"
+				print "smiling"
 
-	def main (self):
-		images = os.listdir(os.getcwd()+"/negative")
-		images.pop(0)
-		for i in images:
-			self.distances = []
-			a = self.normalize("negative/" + i)
-			b = self.projection(a)
-			self.findface(b)
-
+	def classify (self, video_frame):
+		normalized = self.normalize(video_frame)
+		projection = self.project(normalized)
+		self.findface(projection)
 
 
 test = Eigenfaces()
-test.main()
+test.classify("picturesofjames/img0004.jpg")

@@ -29,14 +29,14 @@ class Faces:
 
 	def get_face_images(self):
 		# get all files of image directory
-		images = os.listdir(os.getcwd() + "/picturesofjames")
+		images = os.listdir(os.getcwd() + "/data/analysis")
 		
 		# get rid of the .DS_Store file
 		images.pop(0)
 
 		# add each vector to the list
 		for i in images:
-			self.listfaces.append(self.get_frame_vector("picturesofjames/" + i).T)
+			self.listfaces.append(self.get_frame_vector("data/analysis/" + i).T)
 
 		# compress vector list into one matrix
 		self.faces = np.concatenate(self.listfaces, axis = 1)
@@ -86,7 +86,7 @@ class Faces:
 	def get_weights(self):
 		self.weights = self.eigenfaces.T * self.faces
 
-	def main2(self):
+	def train(self):
 		self.get_face_images()
 		self.mean_face()
 		self.difference_faces()
