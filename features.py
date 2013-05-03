@@ -1,12 +1,13 @@
 import numpy
 import scipy
 import Image
+import math
 from integral_image import Integrate
 from training import Faces
 
 class Features:
 
-	def __init__(self, img):
+	def __init__(self,img):
 
 		# will be an array of all possible features for that image
 		self.f = []
@@ -19,26 +20,28 @@ class Features:
 		self.patch_mean = 1.0
 		self.patch_std = 1.0
 		self.faces = Faces()
+		self.min_patch_side = 24 # smallest block size 
 
-		self.pic = Integrate(img) #for testing Integrate("face_1.jpg") 
+
+		self.pic = Integrate(img)
+
 		self.img = self.pic.integral_image()
 
-		set_ROI(self.img, 0, 0, min(len(img[0]), img.size/len(img[0]))) 
+		self.set_ROI(self.pic, 0, 0, min(len(img[0]), img.size/len(img[0]))) 
 
 		self.init_helper()
 
 	def init_helper(self):
-		min_patch_side = 24 # smallest block size 
 
 		ind = [x for x in xrange(134736)] 
 
 		i = 0
 
 		# creates first type of feature of two rectangles stacked on top of each other
-		for w in xrange (1, min_patch_side+1):
-			for h in xrange(1, 	min_patch_side/2 +1):
-				for x in xrange(0, min_patch_side-w +1):		
-					for y in xrange(0, min_patch_side-2*h+1):
+		for w in xrange (1, self.min_patch_side+1):
+			for h in xrange(1, 	self.min_patch_side/2 +1):
+				for x in xrange(0, self.min_patch_side-w +1):		
+					for y in xrange(0, self.min_patch_side-2*h+1):
 						self.feature_table[i] = 1
 						# for testing, print i
 						self.feature_table[i+1] = x
@@ -48,10 +51,10 @@ class Features:
 						i+=5
 
 		# creates second type of feature of two rectangles side by side
-		for w in xrange (1, min_patch_side/2 +1):
-			for h in xrange(1, 	min_patch_side+1):
-				for x in xrange(0, min_patch_side-2*w +1):
-					for y in xrange(0, min_patch_side-h+1):
+		for w in xrange (1, self.min_patch_side/2 +1):
+			for h in xrange(1, 	self.min_patch_side+1):
+				for x in xrange(0, self.min_patch_side-2*w +1):
+					for y in xrange(0, self.min_patch_side-h+1):
 						self.feature_table[i] = 2
 						self.feature_table[i+1] = x
 						self.feature_table[i+2] = y
@@ -60,10 +63,10 @@ class Features:
 						i+=5
 
 		# creates third type of feature of three rectangles side by side
-		for w in xrange (1, min_patch_side/3 +1):
-			for h in xrange(1, 	min_patch_side+1):
-				for x in xrange(0, min_patch_side-3*w +1):
-					for y in xrange(0, min_patch_side-h+1):
+		for w in xrange (1, self.min_patch_side/3 +1):
+			for h in xrange(1, 	self.min_patch_side+1):
+				for x in xrange(0, self.min_patch_side-3*w +1):
+					for y in xrange(0, self.min_patch_side-h+1):
 						self.feature_table[i] = 3
 						self.feature_table[i+1] = x
 						self.feature_table[i+2] = y
@@ -72,10 +75,10 @@ class Features:
 						i+=5
 
 		# creates fourth type of feature of four rectangles in checkerboard form
-		for w in xrange (1, min_patch_side/2 +1):
-			for h in xrange(1, 	min_patch_side/2+1):
-				for x in xrange(0, min_patch_side-2*w +1):
-					for y in xrange(0, min_patch_side-2*h+1):
+		for w in xrange (1, self.min_patch_side/2 +1):
+			for h in xrange(1, 	self.min_patch_side/2+1):
+				for x in xrange(0, self.min_patch_side-2*w +1):
+					for y in xrange(0, self.min_patch_side-2*h+1):
 						self.feature_table[i] = 4
 						self.feature_table[i+1] = x
 						self.feature_table[i+2] = y
@@ -122,13 +125,13 @@ class Features:
 	def set_ROI(self, integral_image, x, y, w):
 		self.origin_x = x
 		self.origin_y = y		
-		patch_scale = (float(w))/(float(min_patch_side))
+		patch_scale = (float(w))/(float(self.min_patch_side))
 
 		# std^2 = mean(x^2) + mean(x)^2
-		mean = Integrate.findIntegral(x,y,w,w)
+		mean = integral_image.findIntegral(x,y,w,w)
 		mean /= (float((w*w)))
 
-		meanSqr = Integrate.findIntegral(x,y,w,w)
+		meanSqr = integral_image.findIntegral(x,y,w,w)
 		meanSqr /= (float((w*w)))
 
 		if (meanSqr<=0):
@@ -143,8 +146,8 @@ class Features:
 	  ++++ h
 	"""
 	def typeI(self, integral_image, x, y, w, h):
-		sumU = Integrate.findIntegral(x,y,w,h)
-		sumD = Integrate.findIntegral(x,y+h,w,h)
+		sumU = integral_image.findIntegral(x,y,w,h)
+		sumD = integral_image.findIntegral(x,y+h,w,h)
 		# print int(sumD),int(sumU)
 		if sumD > 100000 or sumU > 100000:
 			print sumD,sumU
@@ -159,8 +162,8 @@ class Features:
 	"""
 	def typeII(self, integral_image, x, y, w, h):
 
-		sumL = Integrate.findIntegral(x,y,w,h)
-		sumR = Integrate.findIntegral(x+w,y,w,h)
+		sumL = integral_image.findIntegral(x,y,w,h)
+		sumR = integral_image.findIntegral(x+w,y,w,h)
 
 		return (int(sumL)-int(sumR))/self.patch_std
 	
@@ -173,9 +176,9 @@ class Features:
 	"""
 	def typeIII(self, integral_image, x, y, w, h):
 
-		sumL = Integrate.findIntegral(x,y,w,h)
-		sumC = Integrate.findIntegral(x+w,y,w,h)
-		sumR = Integrate.findIntegral(x+2*w,y,w,h)
+		sumL = integral_image.findIntegral(x,y,w,h)
+		sumC = integral_image.findIntegral(x+w,y,w,h)
+		sumR = integral_image.findIntegral(x+2*w,y,w,h)
 		# We have to account for the mean, since there are more (+) than (-).
 		return (int(sumL)-int(sumC)+int(sumR)-(self.patch_mean*w*h)) / self.patch_std
 	
@@ -190,12 +193,8 @@ class Features:
 	  ----++++ v
 	"""
 	def typeIV(self, integral_image, x, y, w, h):
-		sumLU = Integrate.findIntegral(x,y,w,h)
-		sumRU = Integrate.findIntegral(x+w,y,w,h)
-		sumLD = Integrate.findIntegral(x,y+h,w,h)
-		sumRD = Integrate.findIntegral(x+w,y+h,w,h)
+		sumLU = integral_image.findIntegral(x,y,w,h)
+		sumRU = integral_image.findIntegral(x+w,y,w,h)
+		sumLD = integral_image.findIntegral(x,y+h,w,h)
+		sumRD = integral_image.findIntegral(x+w,y+h,w,h)
 		return (-int(sumLD)+int(sumRD)+int(sumLU)-int(sumRU)) / self.patch_std
-		
-featuretest = Features()
-
-print featuretest.f
