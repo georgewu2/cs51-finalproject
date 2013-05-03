@@ -1,4 +1,5 @@
 import numpy as np
+import os
 from alttraining import Faces
 
 class Eigenfaces:
@@ -10,26 +11,37 @@ class Eigenfaces:
 
 	def normalize (self, video_frame):
 		im_matrix = self.faces.get_frame_vector(video_frame).T
-		print im_matrix - self.faces.meanface
 		return im_matrix - self.faces.meanface
 
 	def projection (self, face):
-		# print "merp"
-		# print self.faces.eigenfaces
-		print self.faces.eigenfaces.T * face
 		return self.faces.eigenfaces.T * face
 
 	def findface(self, a):
 		diff = self.faces.weights - a
 		for i in diff.T:
 			self.distances.append(np.linalg.norm(i-a.T))
-		print self.distances
-		print self.distances.index(min(self.distances))
+		if min(self.distances) > 10000:
+			print "Not recognized as a face"
+		else:
+			index = self.distances.index(min(self.distances))
+			# print self.distances
+			if index < 50:
+				print "not smiling"
+			elif index < 100:
+				print "smiling"
+			elif index < 150:
+				print "George's face"
+			else:
+				print "JN's face"
 
 	def main (self):
-		a = self.normalize("picturesofjames/img0000.jpg")
-		b = self.projection(a)
-		self.findface(b)
+		images = os.listdir(os.getcwd()+"/negative")
+		images.pop(0)
+		for i in images:
+			self.distances = []
+			a = self.normalize("negative/" + i)
+			b = self.projection(a)
+			self.findface(b)
 
 
 

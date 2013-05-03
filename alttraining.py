@@ -29,20 +29,19 @@ class Faces:
 
 	def get_face_images(self):
 		# get all files of image directory
-		images = os.listdir(os.getcwd() + "/yalefaces")
+		images = os.listdir(os.getcwd() + "/picturesofjames")
 		
 		# get rid of the .DS_Store file
 		images.pop(0)
 
 		# add each vector to the list
 		for i in images:
-			self.listfaces.append(self.get_frame_vector("yalefaces/" + i).T)
+			self.listfaces.append(self.get_frame_vector("picturesofjames/" + i).T)
 
 		# compress vector list into one matrix
 		self.faces = np.concatenate(self.listfaces, axis = 1)
 
 	def mean_face(self):
-		# np.mean IS SO SLOW WHYYYYYYY
 		self.meanface = np.mean(self.faces, axis = 1)
 
 	def difference_faces(self):
@@ -68,12 +67,19 @@ class Faces:
 
 		# create the eigenfaces
 		eigenfaces = self.differencefaces * eigenvectors
+		# normalize each eigenface
+
+		# get the tranpose
 		temp = eigenfaces.T
 		vectors = []
 		for face in temp:
+			
+			# get the length of the row and divide each row by it
 			length = linalg.norm(face)
 			nface = face / length
 			vectors.append(nface)
+
+		# get the transpose of the normalized eigenfaces
 		neigenfaces = np.concatenate(vectors).T
 		self.eigenfaces = neigenfaces
 
@@ -82,20 +88,8 @@ class Faces:
 
 	def main2(self):
 		self.get_face_images()
-		# print self.faces
 		self.mean_face()
-		# print self.meanface
 		self.difference_faces()
-		# print self.differencefaces
 		self.covariance()
-		# print self.covmatrix
 		self.get_eigenfaces()
-		# print self.eigenfaces
 		self.get_weights()
-		print self.weights
-		print "DONE"
-
-test = Faces()
-test.main2()
-# a = test.get_frame("stuff.jpg")
-# print test.matrix_to_vector(a)
