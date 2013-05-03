@@ -16,7 +16,7 @@ class perceptron:
 	"""
 	def __init__(self, imgs, imglabels):	
 	# perceptron initialization
-		self.classws = [-1]*134736
+		self.classws = [-1]*8628
 
 		# weights for classifying are randomly initialized to -1 or 1
 		for x in xrange(0, len(self.classws)):
@@ -58,7 +58,7 @@ class perceptron:
 	"""
 	def classify (self, feats, weights):
 
-		# $$print "rows and stuff", feats[0], weights[0]
+		#print "rows and stuff", feats[0], weights[0] #$$
 		return np.dot(feats, weights)	
 
 
@@ -69,11 +69,12 @@ class perceptron:
 	"""
 	def response(self,img): 
   		pic = Features(img) 
-  		# print "pic f top is ", pic.f[0] #$$
-  		#print "self.classws is ", self.classws #$$
+  		#print "pic f top is ", pic.f[0] #$$
+  		# print "self.classws is ", self.classws #$$
+  		
   		# classifies image and returns "stupid" guess
   		y = self.classify(pic.f, self.classws)
-  		# $$ print "y is ", y   
+  		print "y is ", y   #$$
   		if y >= 0:
    			return 1
   		else:
@@ -91,7 +92,7 @@ class perceptron:
 	  
 	  	lastw = self.w[len(self.w)-1]
 		self.w.append(lastw + self.learningRate*iterError*x)
-		# print "last w is ", self.w[len(self.w)-1] #$$
+		print "last w is ", self.w[len(self.w)-1] #$$
 
 
 	""" 
@@ -107,14 +108,14 @@ class perceptron:
 			    print i # $$
 			    img = imgs [i]
 			    r = self.response(img) 
-			    # $$ print "r is ", r
+			    print "r is ", r # $$ 
 			    if self.labels[i] != r: # if we have a wrong response
 				    iterError = self.labels[i] - r # desired response - actual response
 				    self.updateWeights(self.labels[i],iterError)
 				    globalError += abs(iterError)
+				    print "global error is ", globalError	#$$	
 			
-			print "global error is ", globalError	#$$	
-			if globalError <= 1 : # stop criteria # $$$ CHANGE THIS BACK
+			if globalError <= 10 : # stop criteria # $$$ CHANGE THIS BACK
 			   	learned = True # stop learning
 
 		return self.w[len(self.w)-1]
@@ -122,7 +123,7 @@ class perceptron:
 
 	# take in the newimage return the guess
 	def guess (self, image): 
-		pic = Feature(image)
+		pic = Features(image)
 		guess = self.classify (pic.f, self.w)
 		if(guess >= threshold):
 			return 1
@@ -165,7 +166,7 @@ class perceptron:
 		im_gray = imm.convert('L')
 		im_matrix = np.matrix(im_gray)
 
-		imm2 = Image.open("img0001.jpg")
+		imm2 = Image.open("img0002.jpg")
 		im_gray2 = imm2.convert('L')
 		im_matrix2 = np.matrix(im_gray2)
 
@@ -173,7 +174,7 @@ class perceptron:
 		print "the guess for img0000 is "
 		print newp.guess(im_matrix)
 
-		print "the guess for img0001 is "
+		print "the guess for img0002 is "
 		print newp.guess(im_matrix2)
 
 

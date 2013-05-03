@@ -1,5 +1,5 @@
 import numpy as np
-import scipy
+# import scipy
 import Image
 import math
 from integral_image import Integrate
@@ -42,7 +42,7 @@ class Features:
 
 	def init_helper(self):
 
-		ind = [x for x in xrange(43140)] 
+		ind = [x for x in xrange(8628)] 
 
 		i = 0
 
