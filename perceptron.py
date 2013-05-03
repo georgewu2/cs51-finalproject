@@ -17,7 +17,7 @@ class perceptron:
 		# weights for classifying are randomly initialized to -1 or 1
 		for w in self.classws:
 			w = random.randint(0,1)
-			if w = 0
+			if w == 0:
 				w = -1
 
 		# alpha value - to test for 0.1, 0.5, 11, 10
@@ -82,7 +82,7 @@ class perceptron:
 	def updateWeights(self,x,iterError):
 	  
 	  	lastw = self.w[len(self.w)-1]
-		self.w.append(lastw + self.learningRate*iterError*x)s
+		self.w.append(lastw + self.learningRate*iterError*x)
 
 
 	""" 
@@ -112,7 +112,7 @@ class perceptron:
 	def guess (self, image): 
 		pic = Feature(image)
 		guess = classify (pic.f, self.w)
-		if(guess >= threshold)
+		if(guess >= threshold):
 			return 1
-		else 
+		else: 
 			return -1
