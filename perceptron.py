@@ -29,22 +29,21 @@ class perceptron:
 
 		self.images = imgs # dataset of images to train on
 		self.labels = imglabels # labels of images in dataset of whether there exists a face
+
+
 		
-		# self.imgswithvals = [] # potential guesses for each image
+		self.imgswithvals = [] # potential guesses for each image
 
 		# set of weights with the default weight of 1 to offset data
 		self.w = [-1]
 		
-		
-		"""
 
 		# for each image passed into dataset, get the feature value for each image
 		# not sure i have to train everything before i do it
-		for img in self.imags:
+		for img in imgs:
 			pic = Feature(img)
 			imgswithvals.append(classify(pic.f, self.classws)) 
-
-		"""
+		
 
 		# after training, assigns threshold value for guessing
 		self.threshold = self.train(self.images)
@@ -67,13 +66,13 @@ class perceptron:
 	takes in original (non-integral) image 
 	in classifying, returns either -1 or 1 as a potential guess for one image
 	"""
-	def response(self,img): 
-  		pic = Features(img) 
+	def response(self,index): 
+  		# pic = Features(img) 
   		#print "pic f top is ", pic.f[0] #$$
   		# print "self.classws is ", self.classws #$$
   		
   		# classifies image and returns "stupid" guess
-  		y = self.classify(pic.f, self.classws)
+  		y = imgsvals[index] # self.classify(pic.f, self.classws)
   		print "y is ", y   #$$
   		if y >= 0:
    			return 1
@@ -107,9 +106,9 @@ class perceptron:
 			for i in range (0,len(imgs)): # for each sample
 			    print i # $$
 			    img = imgs [i]
-			    r = self.response(img) 
+			    r = self.response(i) 
 			    print "r is ", r # $$ 
-			    if self.labels[i] != r: # if we have a wrong response
+			    if self.labels[i] != r: # if we have a wrong 
 				    iterError = self.labels[i] - r # desired response - actual response
 				    self.updateWeights(self.labels[i],iterError)
 				    globalError += abs(iterError)
