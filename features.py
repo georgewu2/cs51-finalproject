@@ -25,7 +25,7 @@ class Features:
 
 		# array of all features (the type and the coordinates of the corners)
 
-		self.feature_table = [None for x in xrange(43140)]
+		self.feature_table = [1 for x in xrange(43140)]
 		self.origin_x = 0
 		self.origin_y = 0
 		self.patch_scale = 1.0
@@ -42,7 +42,7 @@ class Features:
 
 	def init_helper(self):
 
-		ind = [x for x in xrange(43140)] 
+		ind = [x for x in xrange(8628)] 
 
 		i = 0
 
@@ -94,7 +94,6 @@ class Features:
 						self.feature_table[i+3] = w
 						self.feature_table[i+4] = h
 						i+=5
-
 		self.get_features(ind, self.f)
 
 	# takes in array ind and populates array f with features for that image
