@@ -29,14 +29,14 @@ class Faces:
 
 	def get_face_images(self):
 		# get all files of image directory
-		images = os.listdir(os.getcwd() + "/images")
+		images = os.listdir(os.getcwd() + "/picturesofjames")
 		
 		# get rid of the .DS_Store file
 		images.pop(0)
 
 		# add each vector to the list
 		for i in images:
-			self.listfaces.append(self.get_frame_vector("images/" + i))
+			self.listfaces.append(self.get_frame_vector("picturesofjames/" + i))
 
 		# compress vector list into one matrix
 		self.faces = np.concatenate(self.listfaces)
@@ -62,13 +62,19 @@ class Faces:
 		# sort eigenvalues and eigenvectors according to most significant eigenvalues
 		eigenvalues = eigenvalues[order]
 		eigenvectors = eigenvectors[order]
-
+		# for vector in eigenvectors:
+		# 	length = linalg.norm(vector)
+		# 	vector = vector / length
+		# 	# print vector
+		print eigenvectors
 		self.eigenfaces = eigenvectors * self.differencefaces
 
 	def get_weights(self):
+		# print self.eigenfaces
+		# print self.faces
 		self.weights = self.faces * self.eigenfaces.T
 
-	def main(self):
+	def main2(self):
 		self.get_face_images()
 		print self.faces
 		self.mean_face()
@@ -83,6 +89,6 @@ class Faces:
 		print self.weights
 
 test = Faces()
-test.main()
+test.main2()
 # a = test.get_frame("stuff.jpg")
 # print test.matrix_to_vector(a)
