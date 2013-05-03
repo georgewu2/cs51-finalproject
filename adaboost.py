@@ -281,7 +281,7 @@ class adaBoost:
 		else: 
 			return False
 
-class cascade:
+class Cascade:
 
 	def __init__(self):
 		self.subwindow = []
@@ -393,7 +393,7 @@ class cascade:
 				ncnt = Counter()
 				for k,v in negativeSetGuesses.items():
 					ncnt[v] += 1
-				newFalsePositiveRate = float(ncnt[1]) / float(len(negativeSetGuesses.items()))
+				newNewFalsePositiveRate = float(ncnt[1]) / float(len(negativeSetGuesses.items()))
 
 				# print "NEGATIVE SET GUESSES", negativeSetGuesses
 
@@ -424,7 +424,7 @@ class cascade:
 				# replace our current negative set with only false detections
 				tempNegativeSet = []
 
-				print "NEW FALSE POSITIVE RATE", newFalsePositiveRate, f
+				print "NEW FALSE POSITIVE RATE", newFalsePositiveRate, f, self.falsePositiveRate, newNewFalsePositiveRate
 				if newFalsePositiveRate > f:
 					negativeSetGuesses = self.cascadedClassifierGuess(self.negativeSet,adabooster)
 					print negativeSetGuesses
@@ -434,39 +434,35 @@ class cascade:
 					self.negativeSet = tempNegativeSet
 					print self.negativeSet
 
+				newFalsePositiveRate = newFalsePositiveRate * newNewFalsePositiveRate
+				print "NEW FALSE POSITIVE RATE TO CHECK", newFalsePositiveRate
+
+
+			self.falsePositiveRate = newFalsePositiveRate
+			print "NEW SELF FALSE POSITIVE RATE", self.falsePositiveRate
+
 	def cascadedClassify(self, i):
-		features = Features(i)
-		featuresMatrix = features.f
-		aggregateClassGuess = 0
+		adabooster = adaBoost()
+		result = self.cascadedClassifierGuess([i],adabooster)
+		if [v for (k,v) in result.items()][0] == -1:
+			return False
+		else:
+			return True
 
-		# for every classifier we train, use it to classguess and then scale by
-		# alpha and add to aggregate guess
-		for layer,classifier in self.cascadedClassifier.items():
-			for feature in range (0,len(classifier)):
-				classGuess = self.guessClass(featuresMatrix,classifier[feature]['feature'],classifier[feature]['threshold'],classifier[feature]['inequality'])
-				print "CLASS GUESS",classGuess
-				aggregateClassGuess = aggregateClassGuess + (-1 * classifier[feature]['alpha'] * classGuess)
-				print "AGG CLASS GUESS", aggregateClassGuess
-			if np.sign(aggregateClassGuess) == -1: return False
-		return True
+cascader = Cascade()
+cascader.trainCascadedClassifier(.2,.25,.7)
 
-cascader = cascade()
-cascader.trainCascadedClassifier(.5,.5,.5)
-print cascader.cascadedClassify(get_frame_vector("testconfirmedneg/img0006.jpg",False))
+positiveImages = os.listdir(os.getcwd() + "/testconfirmedpos")
+positiveImages.pop(0)
 
-# adabooster = adaBoost()
-# adabooster.loadData()
-# adabooster.boost(10)
+for i in positiveImages:
+	print "POSITIVES"
+	print cascader.cascadedClassify(get_frame_vector("testconfirmedpos/" + i,False))
 
-# positiveImages = os.listdir(os.getcwd() + "/testconfirmedpos")
-# positiveImages.pop(0)
+negativeImages = os.listdir(os.getcwd() + "/testconfirmedneg")
+negativeImages.pop(0)
 
-# positiveSet = [v for k,v in (adabooster.classify(map(lambda x : get_frame_vector("testconfirmedpos/" + x,False),positiveImages))).items()]
+for i in negativeImages:
+	print "NEGATIVES"
+	print cascader.cascadedClassify(get_frame_vector("testconfirmedneg/" + i,False))
 
-# negativeImages = os.listdir(os.getcwd() + "/testconfirmedneg")
-# negativeImages.pop(0)
-
-# negativeSet = [v for k,v in (adabooster.classify(map(lambda x : get_frame_vector("testconfirmedneg/" + x,False),negativeImages))).items()]
-
-# print "POSITIVE",positiveSet
-# print "NEGATIVE",negativeSet
