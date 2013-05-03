@@ -142,11 +142,13 @@ class perceptron:
 			im_gray = im.convert('L')
 			negimgs.append(np.matrix(im_gray))
 
+		labels=[]
+
 		for x in xrange(0, len(posimgs)):
-			labels[x] = 1
+			labels.append (1)
 
 		for x in xrange(0, len(negimgs)):
-			labels[len(posimgs) + x] = 0
+			labels.append (0)
 
 		totalimgs = posimgs + negimgs
 		newp = perceptron(totalimgs, labels)
