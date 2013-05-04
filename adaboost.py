@@ -73,13 +73,14 @@ class adaBoost:
 		# reset featuresMatrix
 		self.featuresMatrix = np.zeros((1,self.NUM_FEATURES))
 
-		print "Computing features for loaded images..."
-
+		print "Computing all features of every image in our negative and positive training sets..."
 		# create featuresMatrix, one row per image
 		for img in self.data:
 			integralImageWithFeatures = Features(img)
 			self.featuresMatrix = np.vstack([self.featuresMatrix,integralImageWithFeatures.f])
 		self.featuresMatrix = np.delete(self.featuresMatrix,0,0)
+
+		print "Done computing features!"
 
 	# weak classification given a weak classifier
 	def guessClass(self,featuresMatrix,feature,threshold,inequality):
@@ -97,11 +98,9 @@ class adaBoost:
 			if inequality == '<=':
 					if featuresMatrix[feature] <= threshold:
 						classed = -1
-
 			else:
 					if featuresMatrix[feature] > threshold:
 						classed = -1
-			return classed
 
 		# weak guesser for a set of images
 		else:
@@ -109,12 +108,12 @@ class adaBoost:
 				for img in range(0,n):
 					if featuresMatrix[img][feature] <= threshold:
 						classed[img] = -1
-
 			else:
 				for img in range(0,n):
 					if featuresMatrix[img][feature] > threshold:
 						classed[img] = -1
-			return classed
+		
+		return classed
 
 	# trains a weak classifier
 	def trainClassifier(self,data,labels,weights,steps,weakClassGuessers):
@@ -133,7 +132,10 @@ class adaBoost:
 		minError = float('inf')
 
 		# main training loop
-		for feature in range(0,500):
+		for feature in range(0,self.NUM_FEATURES):
+
+			if (feature+1) % 200 == 0:
+				print "Finding the best weak classifier that is based on features #",feature-198,"through",feature+1
 
 			# min and max of one column of featuresMatrix, representing the values
 			# of one particular feature across all the images in our training set
@@ -206,7 +208,7 @@ class adaBoost:
 		# main boosting loop
 		for i in range (0,maxFeatures):
 			
-			print "Boosting iteration", i
+			print "Computing weak classifier #", i+1, "of", maxFeatures, "for inclusion in our strong classifier"
 
 			# train best classifier for current set of image weights
 			bestClassifier,error,classGuess = self.trainClassifier(self.data,self.labels,weights,10,weakClassGuessers)
@@ -333,9 +335,9 @@ class Cascade:
 		# adjust threshold for each weakclassifier in strong classifier
 		for i in range(0,n):
 			if classifier[n][i]['inequality'] == "<=":
-				classifier[n][i]['threshold'] += 2
-			else:
 				classifier[n][i]['threshold'] -= 2
+			else:
+				classifier[n][i]['threshold'] += 2
 
 	# train a cascadedClassifier based on target rates for detection and false positives
 	def trainCascadedClassifier(self,f,d,Ftarget):
@@ -356,6 +358,8 @@ class Cascade:
 
 				n += 1
 
+				print "Training cascaded classifier layer #", n
+
 				# on our second pass, reload our positive and negative sets
 				if n > 1:
 					adabooster.loadDataFromMatrices(self.positiveSet,self.negativeSet)
@@ -367,6 +371,8 @@ class Cascade:
 				# add our new classifier to our cascadedClassifier
 				self.cascadedClassifier[n] = adabooster.classifierArray
 
+				print "Computing current cascaded classifier's false positive rate..."
+
 				# find our classifier's false positive and detection rate
 				negativeSetGuesses = self.cascadedClassifierGuess(self.negativeSet,adabooster)
 				ncnt = Counter()
@@ -375,6 +381,8 @@ class Cascade:
 
 				# "local" false positive rate
 				newLocalFalsePositiveRate = float(ncnt[1]) / float(len(negativeSetGuesses.items()))
+
+				print "Computing current cascaded classifier's detection rate..."
 
 				positiveSetGuesses = self.cascadedClassifierGuess(self.positiveSet,adabooster)
 				pcnt = Counter()
@@ -385,7 +393,11 @@ class Cascade:
 				# adjust the most recently added classifier to improve detection rate
 				while newDetectionRate < d * self.detectionRate:
 
+					print "Adjusting our latest strong classifier to achieve a detection rate of",d,"..."
+
 					self.adjustThreshold(self.cascadedClassifier,n)
+
+					print self.cascadedClassifier
 
 					# re-guess
 					positiveSetGuesses = self.cascadedClassifierGuess(self.positiveSet,adabooster)
@@ -395,10 +407,14 @@ class Cascade:
 					for k,v in positiveSetGuesses.items():
 						cnt[v] += 1
 					newDetectionRate = float(cnt[1]) / float(len(positiveSetGuesses.items()))
+
+					print newDetectionRate
 			
 				tempNegativeSet = []
 
 				if newFalsePositiveRate > f:
+
+					print "Resetting our negative training set to our cascaded classifier's false positives..."
 
 					# replace our current negative training set with only our current false positives
 					negativeSetGuesses = self.cascadedClassifierGuess(self.negativeSet,adabooster)
@@ -411,12 +427,17 @@ class Cascade:
 				# compute new "local" false positive rate
 				newFalsePositiveRate = newFalsePositiveRate * newLocalFalsePositiveRate
 
-			# compute overall false positive rate
+				print "Current cascaded classifier's false positive rate is",newFalsePositiveRate
+				print "Current cascaded classifier's detection rate is",newDetectionRate
+
+			# overall false positive rate
 			self.falsePositiveRate = newFalsePositiveRate
+
+		print "Done training cascaded classifier! Ready to classify."
 
 	# classify one image using cascaded classifier
 	def cascadedClassify(self, i):
 
 		adabooster = adaBoost()
 		result = self.cascadedClassifierGuess([i],adabooster)
-		return !([v for (k,v) in result.items()][0] == -1)
+		return ([v for (k,v) in result.items()][0] == -1)
