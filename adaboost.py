@@ -32,12 +32,12 @@ class adaBoost:
 		self.featuresMatrix  = np.zeros((1,self.NUM_FEATURES))
 
 	# loads training data from directories
-	def loadData(self,positiveDir="sameface/",negativeDir="randombg2/"):
+	def loadData(self,positiveDir="../data/sameface/",negativeDir="../data/randombg/"):
 
 		positiveSet = []
 		negativeSet = []
 
-		positiveImages = os.listdir(os.getcwd() + "/" + positiveDir)
+		positiveImages = os.listdir(positiveDir)
 
 		# # get rid of the .DS_Store file
 		positiveImages.pop(0)
@@ -46,7 +46,7 @@ class adaBoost:
 		for i in positiveImages:
 			positiveSet.append(get_frame_vector(positiveDir + i,False))
 
-		negativeImages = os.listdir(os.getcwd() + "/" + negativeDir)
+		negativeImages = os.listdir(negativeDir)
 
 		# # get rid of the .DS_Store file
 		negativeImages.pop(0)
@@ -266,11 +266,11 @@ class Cascade:
 		self.cascadedClassifier     = {}
 
 	# load initial set of positive images
-	def loadPositives(self,positiveDir="sameface/"):
+	def loadPositives(self,positiveDir="../data/sameface/"):
 
 		positiveSet = []
 
-		positiveImages = os.listdir(os.getcwd() + "/" + positiveDir)
+		positiveImages = os.listdir(positiveDir)
 
 		positiveImages.pop(0)
 
@@ -281,11 +281,11 @@ class Cascade:
 		return positiveSet
 
 	# load initial set of negative images
-	def loadNegatives(self,negativeDir="randombg2/"):
+	def loadNegatives(self,negativeDir="../data/randombg/"):
 
 		negativeSet = []
 
-		negativeImages = os.listdir(os.getcwd() + "/" + negativeDir)
+		negativeImages = os.listdir(negativeDir)
 
 		negativeImages.pop(0)
 
