@@ -1,0 +1,15 @@
+*~
+#*
+*.log
+*.aux
+*.synctex.gz
+*.dvi
+*.svn
+*proposal.out
+*writeup.out
+.cproject
+.pydevproject
+.project
+.settings
+*.pyc
+tmp
