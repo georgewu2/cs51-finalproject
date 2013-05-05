@@ -132,7 +132,7 @@ class adaBoost:
 		minError = float('inf')
 
 		# main training loop
-		for feature in range(0,self.NUM_FEATURES):
+		for feature in range(0,100):
 
 			if (feature+1) % 200 == 0:
 				print "Finding the best weak classifier that is based on features #",feature-198,"through",feature+1
