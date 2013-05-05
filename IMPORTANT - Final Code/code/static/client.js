@@ -13,26 +13,19 @@ $(document).ready(function(){
     ctx.translate(Eigenfaces.WIDTH, 0);
     ctx.scale(-1, 1);
 
-    var timer;
-
     // create websocket
     var ws = new WebSocket("ws://" + Eigenfaces.HOST + ":" +
                            Eigenfaces.PORT + "/websocket");
     ws.onopen = function() {
         console.log("Opened connection to websocket");
     };
+
     ws.onmessage = function(msg) {
         // display updated notification on if there is a face or not
         document.getElementById('changetext').innerHTML = msg.data;
-        var target = document.getElementById("target");
-        url = window.webkitURL.createObjectURL(msg.data.slice(10, msg.data.size));
-        target.onload = function() {
-            window.webkitURL.revokeObjectURL(url);
-        };
-        target.src = url;
     };
+
     ws.onclose = function(msg) {
-        window.clearInterval(timer);
         console.log("Closed connection to websocket");
     };
 
@@ -53,7 +46,7 @@ $(document).ready(function(){
 
 		for (i = 0; i <= 10000; i+=200) {
 		
-		    timer = setTimeout(
+		    setTimeout(
 		        function () {
 			    ctx.drawImage(video, 0, 0, Eigenfaces.WIDTH, Eigenfaces.HEIGHT);
 			    var data = canvas.get()[0].toDataURL('image/jpeg', 1.0);
@@ -84,7 +77,7 @@ $(document).ready(function(){
 
 		for (i = 0; i < 10000; i+=200) {
 		
-		    timer = setTimeout(
+		    setTimeout(
 		        function () {
 			    ctx.drawImage(video, 0, 0, Eigenfaces.WIDTH, Eigenfaces.HEIGHT);
 			    var data = canvas.get()[0].toDataURL('image/jpeg', 1.0);

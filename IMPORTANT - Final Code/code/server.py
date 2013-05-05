@@ -15,10 +15,11 @@ DIRECTORY = os.path.join(os.path.dirname(__file__), "tmp")
 
 # Pipeline to run on this server
 PIPELINE = None
-
+eigenfaces = Eigenfaces()
 cascader = Cascade()
+cascader.trainCascadedClassifier(.2,.6,.2)
 # Sets the false positive threshold (0.2 in this case)
-cascader.trainCascadedClassifier(.2,.25,.7)
+
 
 DIRECTORY = os.path.join(os.path.dirname(__file__), "tmp")
 class MainHandler(tornado.web.RequestHandler):
@@ -57,16 +58,17 @@ class VideoWebSocketHandler(tornado.websocket.WebSocketHandler):
             self.prev = newim
         else:
 	    cv2.imwrite("../data/analysis/img%04d.jpg" % self.frames, newim)
+            # cv2.imwrite("../data/sameface/img%04d.jpg" % self.frames, newim)
             # Only print message after the 100th image
             if (self.frames >= 100):
                 # Run adaboost to see if there is a face or not
                 if (cascader.cascadedClassify(adaboost.get_frame_vector("../data/analysis/img%04d.jpg" % self.frames, False))):
-                    eigenfaces = Eigenfaces()
+                    self.write_message(u"Yes, face")
                     # Detect if the face is smiling or not
                     if eigenfaces.classify("../data/analysis/img%04d.jpg" % self.frames):
-			self.write_message(u"You are not smiling :(")
+			self.write_message(u"Yes, face")
 		    else:
-			self.write_message(u"You are smiling :)")
+			self.write_message(u"Yes, smiling face")
                 else:
                     self.write_message(u"No face")
                 # Delete img100.jpg and replace with new file
